@@ -1,0 +1,225 @@
+{% extends 'base.html' %} {% load static %} {% block extra_css %}
+<style>
+  .auth-container {
+    max-width: 500px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background: var(--white);
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .auth-header {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+
+  .auth-header h1 {
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+  }
+
+  .auth-header p {
+    color: var(--gray-600);
+  }
+
+  .auth-links {
+    text-align: center;
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--gray-200);
+  }
+
+  .auth-links a {
+    color: var(--primary-color);
+    text-decoration: none;
+  }
+
+  .auth-links a:hover {
+    text-decoration: underline;
+  }
+
+  .terms-link {
+    color: var(--primary-color);
+    text-decoration: none;
+  }
+
+  .terms-link:hover {
+    text-decoration: underline;
+  }
+</style>
+{% endblock %} {% block content %}
+<!-- Breadcrumb -->
+{% include 'components/breadcrumb.html' %}
+
+<div class="container">
+  <div class="auth-container">
+    <!-- Header -->
+    <div class="auth-header">
+      <h1><i class="fas fa-user-plus"></i> Create Your Account</h1>
+      <p>Join our community and start funding amazing projects</p>
+    </div>
+
+    <!-- Registration Form -->
+    {% include 'components/form.html' with form=form form_id='registration-form'
+    form_title=None ajax_form=True submit_text='Create Account' %}
+
+    <!-- Terms and Privacy -->
+    <div class="form-group">
+      <small class="text-muted">
+        By creating an account, you agree to our
+        <a href="#" class="terms-link">Terms of Service</a> and
+        <a href="#" class="terms-link">Privacy Policy</a>.
+      </small>
+    </div>
+
+    <!-- Login Link -->
+    <div class="auth-links">
+      <p>
+        Already have an account?
+        <a href="{% url 'accounts:login' %}">Sign in here</a>
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- Loading Overlay -->
+{% include 'components/loading.html' with id='registration-loading' hidden=True
+%} {% endblock %} {% block extra_js %}
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const form = document.getElementById("registration-form");
+    const loadingOverlay = document.getElementById("registration-loading");
+
+    if (form) {
+      // Handle form submission
+      form.addEventListener("submit", function (e) {
+        // Show loading
+        if (loadingOverlay) {
+          showLoading({
+            text: "Creating your account...",
+            spinner: "default",
+          });
+        }
+      });
+
+      // Handle successful registration
+      form.addEventListener("ajax:success", function (e) {
+        hideLoading();
+
+        // Show success message
+        showMessage(
+          "Account created successfully! Welcome to CrowdFund!",
+          "success"
+        );
+
+        // Redirect after delay
+        setTimeout(function () {
+          window.location.href =
+            e.detail.redirect_url || "{% url 'projects:home' %}";
+        }, 1500);
+      });
+
+      // Handle registration errors
+      form.addEventListener("ajax:error", function (e) {
+        hideLoading();
+
+        if (e.detail.message) {
+          showMessage(e.detail.message, "error");
+        }
+      });
+    }
+
+    // Custom validation for Egyptian phone numbers
+    window.validateEgyptianPhone = function (value, field) {
+      const errors = [];
+
+      if (!value) {
+        return errors;
+      }
+
+      // Remove spaces, dashes, and parentheses
+      const phoneClean = value.replace(/[\s\-\(\)]/g, "");
+
+      // Egyptian mobile patterns
+      const patterns = [
+        /^\+201[0125][0-9]{8}$/, // +201xxxxxxxxx
+        /^01[0125][0-9]{8}$/, // 01xxxxxxxxx
+        /^1[0125][0-9]{8}$/, // 1xxxxxxxxx
+      ];
+
+      const isValid = patterns.some((pattern) => pattern.test(phoneClean));
+
+      if (!isValid) {
+        errors.push("Enter a valid Egyptian mobile number (e.g., 01012345678)");
+      }
+
+      return errors;
+    };
+
+    // Phone number formatting
+    const phoneInput = document.querySelector('input[name="phone_number"]');
+    if (phoneInput) {
+      phoneInput.addEventListener("input", function (e) {
+        let value = e.target.value.replace(/\D/g, ""); // Remove non-digits
+
+        // Auto-format Egyptian phone numbers
+        if (value.startsWith("20") && value.length > 2) {
+          value = "+" + value;
+        } else if (value.startsWith("01") && value.length === 11) {
+          // Keep as is
+        } else if (value.startsWith("1") && value.length === 10) {
+          value = "0" + value;
+        }
+
+        e.target.value = value;
+      });
+    }
+
+    // Password strength indicator
+    const password1 = document.querySelector('input[name="password1"]');
+    const password2 = document.querySelector('input[name="password2"]');
+
+    if (password1) {
+      password1.addEventListener("input", function (e) {
+        const value = e.target.value;
+        const strength = calculatePasswordStrength(value);
+        updatePasswordStrengthIndicator(strength);
+      });
+    }
+
+    if (password2) {
+      password2.addEventListener("input", function (e) {
+        const password1Value = password1.value;
+        const password2Value = e.target.value;
+
+        if (password2Value && password1Value !== password2Value) {
+          showFieldErrors(e.target, ["Passwords do not match"]);
+        } else {
+          clearFieldErrors(e.target);
+        }
+      });
+    }
+
+    function calculatePasswordStrength(password) {
+      let strength = 0;
+
+      if (password.length >= 8) strength++;
+      if (/[a-z]/.test(password)) strength++;
+      if (/[A-Z]/.test(password)) strength++;
+      if (/[0-9]/.test(password)) strength++;
+      if (/[^A-Za-z0-9]/.test(password)) strength++;
+
+      return strength;
+    }
+
+    function updatePasswordStrengthIndicator(strength) {
+      // This could be enhanced with a visual indicator
+      const strengthText =
+        ["Very Weak", "Weak", "Fair", "Good", "Strong"][strength] ||
+        "Very Weak";
+      console.log("Password strength:", strengthText);
+    }
+  });
+</script>
+{% endblock %}

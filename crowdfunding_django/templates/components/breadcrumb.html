@@ -1,0 +1,278 @@
+{% load static %}
+
+<!-- Breadcrumb navigation component -->
+{% if breadcrumbs or request.resolver_match.url_name != 'home' %}
+<nav class="breadcrumb-nav" aria-label="Breadcrumb">
+  <div class="container">
+    <ol class="breadcrumb">
+      <!-- Home link -->
+      <li class="breadcrumb-item">
+        <a href="{% url 'projects:home' %}" class="breadcrumb-link">
+          <i class="fas fa-home" aria-hidden="true"></i>
+          <span class="sr-only">Home</span>
+        </a>
+      </li>
+
+      <!-- Custom breadcrumbs from context -->
+      {% for crumb in breadcrumbs %}
+      <li class="breadcrumb-item {% if forloop.last %}active{% endif %}">
+        {% if crumb.url and not forloop.last %}
+        <a href="{{ crumb.url }}" class="breadcrumb-link">
+          {% if crumb.icon %}
+          <i class="{{ crumb.icon }}" aria-hidden="true"></i>
+          {% endif %} {{ crumb.title }}
+        </a>
+        {% else %} {% if crumb.icon %}
+        <i class="{{ crumb.icon }}" aria-hidden="true"></i>
+        {% endif %}
+        <span class="breadcrumb-current">{{ crumb.title }}</span>
+        {% endif %}
+      </li>
+      {% empty %}
+      <!-- Auto-generate breadcrumbs based on URL -->
+      {% if 'projects' in request.resolver_match.app_name %}
+      <li
+        class="breadcrumb-item {% if request.resolver_match.url_name == 'list' %}active{% endif %}"
+      >
+        {% if request.resolver_match.url_name != 'list' %}
+        <a href="{% url 'projects:list' %}" class="breadcrumb-link">
+          <i class="fas fa-list" aria-hidden="true"></i>
+          Projects
+        </a>
+        {% else %}
+        <i class="fas fa-list" aria-hidden="true"></i>
+        <span class="breadcrumb-current">Projects</span>
+        {% endif %}
+      </li>
+
+      {% if request.resolver_match.url_name == 'detail' and project %}
+      <li class="breadcrumb-item active">
+        <i class="fas fa-eye" aria-hidden="true"></i>
+        <span class="breadcrumb-current"
+          >{{ project.title|truncatechars:30 }}</span
+        >
+      </li>
+      {% elif request.resolver_match.url_name == 'create' %}
+      <li class="breadcrumb-item active">
+        <i class="fas fa-plus" aria-hidden="true"></i>
+        <span class="breadcrumb-current">Create Project</span>
+      </li>
+      {% elif request.resolver_match.url_name == 'edit' and project %}
+      <li class="breadcrumb-item">
+        <a
+          href="{% url 'projects:detail' project.id %}"
+          class="breadcrumb-link"
+        >
+          <i class="fas fa-eye" aria-hidden="true"></i>
+          {{ project.title|truncatechars:20 }}
+        </a>
+      </li>
+      <li class="breadcrumb-item active">
+        <i class="fas fa-edit" aria-hidden="true"></i>
+        <span class="breadcrumb-current">Edit</span>
+      </li>
+      {% elif request.resolver_match.url_name == 'dashboard' %}
+      <li class="breadcrumb-item active">
+        <i class="fas fa-tachometer-alt" aria-hidden="true"></i>
+        <span class="breadcrumb-current">Dashboard</span>
+      </li>
+      {% elif request.resolver_match.url_name == 'my_projects' %}
+      <li class="breadcrumb-item active">
+        <i class="fas fa-folder" aria-hidden="true"></i>
+        <span class="breadcrumb-current">My Projects</span>
+      </li>
+      {% elif request.resolver_match.url_name == 'my_contributions' %}
+      <li class="breadcrumb-item active">
+        <i class="fas fa-heart" aria-hidden="true"></i>
+        <span class="breadcrumb-current">My Contributions</span>
+      </li>
+      {% elif 'accounts' in request.resolver_match.app_name %}
+      <li
+        class="breadcrumb-item {% if request.resolver_match.url_name == 'profile' %}active{% endif %}"
+      >
+        {% if request.resolver_match.url_name != 'profile' %}
+        <a href="{% url 'accounts:profile' %}" class="breadcrumb-link">
+          <i class="fas fa-user" aria-hidden="true"></i>
+          Account
+        </a>
+        {% else %}
+        <i class="fas fa-user" aria-hidden="true"></i>
+        <span class="breadcrumb-current">Profile</span>
+        {% endif %}
+      </li>
+
+      {% if request.resolver_match.url_name == 'login' %}
+      <li class="breadcrumb-item active">
+        <i class="fas fa-sign-in-alt" aria-hidden="true"></i>
+        <span class="breadcrumb-current">Login</span>
+      </li>
+      {% elif request.resolver_match.url_name == 'register' %}
+      <li class="breadcrumb-item active">
+        <i class="fas fa-user-plus" aria-hidden="true"></i>
+        <span class="breadcrumb-current">Register</span>
+      </li>
+      {% elif request.resolver_match.url_name == 'password_reset' %}
+      <li class="breadcrumb-item active">
+        <i class="fas fa-key" aria-hidden="true"></i>
+        <span class="breadcrumb-current">Reset Password</span>
+      </li>
+      {% endif %} {% endfor %}
+    </ol>
+  </div>
+</nav>
+{% endif %}
+
+<style>
+  /* Breadcrumb Navigation Styles */
+  .breadcrumb-nav {
+    background-color: var(--gray-100);
+    border-bottom: 1px solid var(--gray-200);
+    padding: var(--spacing-sm) 0;
+    margin-bottom: var(--spacing-lg);
+  }
+
+  .breadcrumb {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    font-size: var(--font-size-sm);
+  }
+
+  .breadcrumb-item {
+    display: flex;
+    align-items: center;
+    color: var(--gray-600);
+  }
+
+  .breadcrumb-item:not(:last-child):after {
+    content: "/";
+    margin: 0 var(--spacing-sm);
+    color: var(--gray-400);
+    font-weight: normal;
+  }
+
+  .breadcrumb-link {
+    color: var(--primary-color);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: var(--border-radius);
+    transition: var(--transition);
+  }
+
+  .breadcrumb-link:hover {
+    color: var(--primary-dark);
+    background-color: var(--gray-200);
+    text-decoration: none;
+  }
+
+  .breadcrumb-link:focus {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+  }
+
+  .breadcrumb-current {
+    color: var(--gray-700);
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+  }
+
+  .breadcrumb-item.active .breadcrumb-current {
+    color: var(--gray-800);
+  }
+
+  .breadcrumb-item i {
+    font-size: 0.875rem;
+    opacity: 0.8;
+  }
+
+  /* Screen reader only text */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  /* Mobile responsive */
+  @media (max-width: 768px) {
+    .breadcrumb-nav {
+      padding: var(--spacing-xs) 0;
+      margin-bottom: var(--spacing-md);
+    }
+
+    .breadcrumb {
+      font-size: 0.8rem;
+    }
+
+    .breadcrumb-item:not(:last-child):after {
+      margin: 0 var(--spacing-xs);
+    }
+
+    .breadcrumb-link,
+    .breadcrumb-current {
+      padding: var(--spacing-xs);
+      gap: 4px;
+    }
+
+    /* Hide breadcrumb text on very small screens, keep icons */
+    @media (max-width: 480px) {
+      .breadcrumb-link span:not(.sr-only),
+      .breadcrumb-current span {
+        display: none;
+      }
+
+      .breadcrumb-link,
+      .breadcrumb-current {
+        min-width: 24px;
+        justify-content: center;
+      }
+    }
+  }
+
+  /* High contrast mode */
+  @media (prefers-contrast: high) {
+    .breadcrumb-nav {
+      background-color: var(--white);
+      border-bottom: 2px solid var(--gray-800);
+    }
+
+    .breadcrumb-link {
+      color: var(--gray-900);
+    }
+
+    .breadcrumb-link:hover {
+      background-color: var(--gray-300);
+    }
+
+    .breadcrumb-current {
+      color: var(--gray-900);
+    }
+  }
+
+  /* Reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    .breadcrumb-link {
+      transition: none;
+    }
+  }
+
+  /* Print styles */
+  @media print {
+    .breadcrumb-nav {
+      display: none;
+    }
+  }
+</style>

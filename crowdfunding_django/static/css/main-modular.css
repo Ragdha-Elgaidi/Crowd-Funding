@@ -1,0 +1,125 @@
+/* 
+ * Modular CSS Framework for CrowdFunding Platform
+ * 
+ * This is the main CSS file that imports all modular components.
+ * Components are organized for maintainability and reusability.
+ *
+ * Structure:
+ * - base.css: Variables, reset, typography
+ * - layouts/: Grid system, spacing utilities
+ * - components/: Reusable UI components
+ * - utilities/: Helper classes
+ * - pages/: Page-specific styles
+ */
+
+/* Base Styles - Variables, Reset, Typography */
+@import url("./base.css");
+
+/* Layout System */
+@import url("./layouts/grid.css");
+
+/* Core Components */
+@import url("./components/navigation.css");
+@import url("./components/buttons.css");
+@import url("./components/forms.css");
+@import url("./components/cards.css");
+@import url("./components/alerts.css");
+
+/* Utility Classes */
+@import url("./utilities/utilities.css");
+
+/* Main Layout Styles */
+main {
+  flex: 1;
+  padding: var(--spacing-2xl) 0;
+  min-height: calc(100vh - 140px); /* Adjust based on header/footer height */
+}
+
+/* Footer */
+footer {
+  background-color: var(--gray-800);
+  color: var(--white);
+  padding: var(--spacing-2xl) 0;
+  margin-top: auto;
+}
+
+.footer-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--spacing-md);
+}
+
+.footer-links {
+  display: flex;
+  gap: var(--spacing-lg);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.footer-links a {
+  color: var(--gray-300);
+  text-decoration: none;
+  transition: var(--transition);
+}
+
+.footer-links a:hover {
+  color: var(--white);
+}
+
+/* Global Responsive Adjustments */
+@media (max-width: 768px) {
+  main {
+    padding: var(--spacing-lg) 0;
+  }
+
+  .footer-content {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .footer-links {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--gray-100);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--gray-400);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--gray-500);
+}
+
+/* Print Styles */
+@media print {
+  .navbar,
+  footer,
+  .btn,
+  .alert {
+    display: none !important;
+  }
+
+  body {
+    color: black !important;
+    background: white !important;
+  }
+
+  .card {
+    border: 1px solid black !important;
+    box-shadow: none !important;
+  }
+}

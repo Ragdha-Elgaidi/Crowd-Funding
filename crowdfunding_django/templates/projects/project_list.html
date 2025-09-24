@@ -1,0 +1,528 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+    <style>
+        .projects-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: var(--white);
+            padding: 3rem 0;
+            margin-bottom: 2rem;
+        }
+        
+        .projects-header h1 {
+            margin: 0 0 0.5rem;
+            font-size: 2.5rem;
+        }
+        
+        .projects-header p {
+            margin: 0;
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+        
+        .search-filters {
+            background: var(--white);
+            border: 1px solid var(--gray-200);
+            border-radius: var(--border-radius-lg);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .search-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .search-title {
+            margin: 0;
+            color: var(--gray-800);
+            font-size: 1.25rem;
+        }
+        
+        .filter-toggle {
+            background: none;
+            border: 1px solid var(--primary-color);
+            color: var(--primary-color);
+            padding: 0.5rem 1rem;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .filter-toggle:hover {
+            background: var(--primary-color);
+            color: var(--white);
+        }
+        
+        .search-form {
+            display: grid;
+            grid-template-columns: 2fr 1fr auto;
+            gap: 1rem;
+            align-items: end;
+        }
+        
+        .advanced-filters {
+            display: none;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--gray-200);
+        }
+        
+        .advanced-filters.show {
+            display: grid;
+        }
+        
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+        
+        .project-card {
+            background: var(--white);
+            border: 1px solid var(--gray-200);
+            border-radius: var(--border-radius-lg);
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition);
+            height: fit-content;
+        }
+        
+        .project-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .project-image {
+            height: 200px;
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            font-size: 3rem;
+            position: relative;
+        }
+        
+        .project-status {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: var(--border-radius);
+            font-size: var(--font-size-sm);
+            font-weight: 500;
+        }
+        
+        .status-active {
+            background: var(--success-color);
+            color: var(--white);
+        }
+        
+        .status-completed {
+            background: var(--info-color);
+            color: var(--white);
+        }
+        
+        .status-expired {
+            background: var(--danger-color);
+            color: var(--white);
+        }
+        
+        .project-content {
+            padding: 1.5rem;
+        }
+        
+        .project-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin: 0 0 0.5rem;
+            color: var(--gray-900);
+        }
+        
+        .project-title a {
+            color: inherit;
+            text-decoration: none;
+        }
+        
+        .project-title a:hover {
+            color: var(--primary-color);
+        }
+        
+        .project-description {
+            color: var(--gray-600);
+            margin-bottom: 1rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        
+        .project-meta {
+            margin-bottom: 1rem;
+        }
+        
+        .meta-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            font-size: var(--font-size-sm);
+        }
+        
+        .meta-label {
+            color: var(--gray-600);
+        }
+        
+        .meta-value {
+            color: var(--gray-900);
+            font-weight: 500;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--gray-200);
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            transition: width 0.3s ease;
+        }
+        
+        .project-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .btn-contribute {
+            flex: 1;
+            background: var(--primary-color);
+            color: var(--white);
+            border: none;
+            padding: 0.75rem;
+            border-radius: var(--border-radius);
+            font-weight: 500;
+            text-decoration: none;
+            text-align: center;
+            transition: var(--transition);
+        }
+        
+        .btn-contribute:hover {
+            background: var(--primary-dark);
+            color: var(--white);
+        }
+        
+        .btn-view {
+            background: transparent;
+            color: var(--primary-color);
+            border: 1px solid var(--primary-color);
+            padding: 0.75rem 1rem;
+            border-radius: var(--border-radius);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+        
+        .btn-view:hover {
+            background: var(--primary-color);
+            color: var(--white);
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--gray-600);
+        }
+        
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+        
+        .empty-state h3 {
+            margin-bottom: 1rem;
+            color: var(--gray-800);
+        }
+        
+        .results-summary {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding: 1rem;
+            background: var(--gray-50);
+            border-radius: var(--border-radius);
+        }
+        
+        .results-count {
+            color: var(--gray-700);
+            font-weight: 500;
+        }
+        
+        .sort-options {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+        
+        @media (max-width: 768px) {
+            .projects-header {
+                padding: 2rem 0;
+            }
+            
+            .projects-header h1 {
+                font-size: 2rem;
+            }
+            
+            .search-form {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            
+            .projects-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+            
+            .search-filters {
+                padding: 1.5rem;
+            }
+            
+            .results-summary {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <!-- Header -->
+    <div class="projects-header">
+        <div class="container">
+            <h1><i class="fas fa-project-diagram"></i> Explore Projects</h1>
+            <p>Discover amazing ideas and support innovative projects</p>
+        </div>
+    </div>
+    
+    <!-- Breadcrumb -->
+    {% include 'components/breadcrumb.html' %}
+    
+    <div class="container">
+        <!-- Search and Filters -->
+        <div class="search-filters">
+            <div class="search-header">
+                <h2 class="search-title">Find Projects</h2>
+                <button type="button" class="filter-toggle" onclick="toggleAdvancedFilters()">
+                    <i class="fas fa-filter"></i> Advanced Filters
+                </button>
+            </div>
+            
+            <form method="get" class="search-form" id="search-form">
+                <div class="form-group">
+                    <input type="text" 
+                           name="search_query" 
+                           class="form-control" 
+                           placeholder="Search projects by title or description..."
+                           value="{{ request.GET.search_query }}">
+                </div>
+                
+                <div class="form-group">
+                    <select name="status_filter" class="form-control">
+                        <option value="">All Projects</option>
+                        <option value="active" {% if request.GET.status_filter == 'active' %}selected{% endif %}>Active</option>
+                        <option value="completed" {% if request.GET.status_filter == 'completed' %}selected{% endif %}>Completed</option>
+                        <option value="expired" {% if request.GET.status_filter == 'expired' %}selected{% endif %}>Expired</option>
+                    </select>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-search"></i> Search
+                </button>
+            </form>
+            
+            <!-- Advanced Filters -->
+            <div class="advanced-filters" id="advanced-filters">
+                <div class="form-group">
+                    <label class="form-label">Date Range</label>
+                    <input type="date" 
+                           name="date_search" 
+                           class="form-control"
+                           value="{{ request.GET.date_search }}">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Min Target ($)</label>
+                    <input type="number" 
+                           name="min_target" 
+                           class="form-control"
+                           placeholder="0"
+                           value="{{ request.GET.min_target }}">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Max Target ($)</label>
+                    <input type="number" 
+                           name="max_target" 
+                           class="form-control"
+                           placeholder="100000"
+                           value="{{ request.GET.max_target }}">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Sort By</label>
+                    <select name="sort_by" class="form-control">
+                        <option value="-created_at" {% if request.GET.sort_by == '-created_at' %}selected{% endif %}>Newest First</option>
+                        <option value="created_at" {% if request.GET.sort_by == 'created_at' %}selected{% endif %}>Oldest First</option>
+                        <option value="-total_target" {% if request.GET.sort_by == '-total_target' %}selected{% endif %}>Highest Target</option>
+                        <option value="total_target" {% if request.GET.sort_by == 'total_target' %}selected{% endif %}>Lowest Target</option>
+                        <option value="-current_funding" {% if request.GET.sort_by == '-current_funding' %}selected{% endif %}>Most Funded</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Results Summary -->
+        {% if projects %}
+            <div class="results-summary">
+                <div class="results-count">
+                    <strong>{{ projects|length }}</strong> project{{ projects|length|pluralize }} found
+                    {% if request.GET.search_query %}
+                        for "<strong>{{ request.GET.search_query }}</strong>"
+                    {% endif %}
+                </div>
+                <div class="sort-options">
+                    <a href="{% url 'projects:create' %}" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Create Project
+                    </a>
+                </div>
+            </div>
+        {% endif %}
+        
+        <!-- Projects Grid -->
+        {% if projects %}
+            <div class="projects-grid">
+                {% for project in projects %}
+                    <div class="project-card">
+                        <!-- Project Image -->
+                        <div class="project-image">
+                            <i class="fas fa-lightbulb"></i>
+                            <span class="project-status status-{{ project.get_status_display|lower }}">
+                                {{ project.get_status_display }}
+                            </span>
+                        </div>
+                        
+                        <!-- Project Content -->
+                        <div class="project-content">
+                            <h3 class="project-title">
+                                <a href="{% url 'projects:detail' project.pk %}">
+                                    {{ project.title }}
+                                </a>
+                            </h3>
+                            
+                            <p class="project-description">
+                                {{ project.details|truncatewords:20 }}
+                            </p>
+                            
+                            <div class="project-meta">
+                                <div class="meta-item">
+                                    <span class="meta-label">Target:</span>
+                                    <span class="meta-value">${{ project.total_target|floatformat:0 }}</span>
+                                </div>
+                                <div class="meta-item">
+                                    <span class="meta-label">Raised:</span>
+                                    <span class="meta-value">${{ project.current_amount|floatformat:0 }}</span>
+                                </div>
+                                <div class="meta-item">
+                                    <span class="meta-label">End Date:</span>
+                                    <span class="meta-value">{{ project.end_date|date:"M d, Y" }}</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Progress Bar -->
+                            <div class="progress-bar">
+                                <div class="progress-fill" 
+                                     style="width: {{ project.funding_percentage|floatformat:0 }}%"></div>
+                            </div>
+                            
+                            <!-- Project Actions -->
+                            <div class="project-actions">
+                                <a href="{% url 'projects:detail' project.pk %}" class="btn-view">
+                                    <i class="fas fa-eye"></i> View
+                                </a>
+                                {% if project.is_active and project != request.user %}
+                                    <a href="{% url 'projects:contribute' project.pk %}" class="btn-contribute">
+                                        <i class="fas fa-heart"></i> Support
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+            
+            <!-- Pagination -->
+            {% if is_paginated %}
+                {% include 'components/pagination.html' %}
+            {% endif %}
+        {% else %}
+            <!-- Empty State -->
+            <div class="empty-state">
+                <i class="fas fa-search"></i>
+                <h3>No Projects Found</h3>
+                {% if request.GET.search_query or request.GET.status_filter %}
+                    <p>Try adjusting your search criteria or filters.</p>
+                    <a href="{% url 'projects:list' %}" class="btn btn-outline-primary">
+                        <i class="fas fa-refresh"></i> Show All Projects
+                    </a>
+                {% else %}
+                    <p>No projects have been created yet. Be the first to start a campaign!</p>
+                    <a href="{% url 'projects:create' %}" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Create First Project
+                    </a>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}
+
+{% block extra_js %}
+    <script>
+        function toggleAdvancedFilters() {
+            const filters = document.getElementById('advanced-filters');
+            const button = document.querySelector('.filter-toggle');
+            
+            if (filters.classList.contains('show')) {
+                filters.classList.remove('show');
+                button.innerHTML = '<i class="fas fa-filter"></i> Advanced Filters';
+            } else {
+                filters.classList.add('show');
+                button.innerHTML = '<i class="fas fa-filter"></i> Hide Filters';
+            }
+        }
+        
+        // Auto-submit form when advanced filters change
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('search-form');
+            const advancedInputs = document.querySelectorAll('#advanced-filters input, #advanced-filters select');
+            
+            advancedInputs.forEach(input => {
+                input.addEventListener('change', function() {
+                    form.submit();
+                });
+            });
+        });
+    </script>
+{% endblock %}

@@ -1,0 +1,578 @@
+{% load static %}
+
+<!-- Messages container for Django messages framework -->
+{% if messages %}
+    <div class="messages-container" role="alert" aria-live="polite">
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show" 
+                 role="alert"
+                 data-message-level="{{ message.level }}"
+                 data-message-tags="{{ message.tags }}">
+                
+                <!-- Message icon based on type -->
+                <i class="alert-icon 
+                    {% if message.tags == 'success' %}fas fa-check-circle
+                    {% elif message.tags == 'error' or message.tags == 'danger' %}fas fa-exclamation-triangle
+                    {% elif message.tags == 'warning' %}fas fa-exclamation-circle
+                    {% elif message.tags == 'info' %}fas fa-info-circle
+                    {% else %}fas fa-bell
+                    {% endif %}" 
+                   aria-hidden="true"></i>
+                
+                <!-- Message content -->
+                <div class="alert-content">
+                    {% if message.extra_tags %}
+                        <strong class="alert-title">
+                            {% if 'login' in message.extra_tags %}
+                                Login Required
+                            {% elif 'success' in message.extra_tags %}
+                                Success!
+                            {% elif 'error' in message.extra_tags %}
+                                Error
+                            {% elif 'warning' in message.extra_tags %}
+                                Warning
+                            {% else %}
+                                {{ message.extra_tags|title }}
+                            {% endif %}
+                        </strong>
+                    {% endif %}
+                    
+                    <div class="alert-message">
+                        {{ message|safe }}
+                    </div>
+                </div>
+                
+                <!-- Close button -->
+                <button type="button" 
+                        class="btn-close" 
+                        data-dismiss="alert" 
+                        aria-label="Close message"
+                        title="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        {% endfor %}
+    </div>
+{% endif %}
+
+<!-- Toast container for AJAX messages -->
+<div class="toast-container" id="toast-container" aria-live="polite" aria-atomic="true">
+    <!-- Toasts will be dynamically inserted here -->
+</div>
+
+<!-- Success message template (hidden, used by JavaScript) -->
+<template id="success-message-template">
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="alert-icon fas fa-check-circle" aria-hidden="true"></i>
+        <div class="alert-content">
+            <div class="alert-message"></div>
+        </div>
+        <button type="button" class="btn-close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+</template>
+
+<!-- Error message template (hidden, used by JavaScript) -->
+<template id="error-message-template">
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="alert-icon fas fa-exclamation-triangle" aria-hidden="true"></i>
+        <div class="alert-content">
+            <div class="alert-message"></div>
+        </div>
+        <button type="button" class="btn-close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+</template>
+
+<!-- Warning message template (hidden, used by JavaScript) -->
+<template id="warning-message-template">
+    <div class="alert alert-warning alert-dismissible fade show" role="alert">
+        <i class="alert-icon fas fa-exclamation-circle" aria-hidden="true"></i>
+        <div class="alert-content">
+            <div class="alert-message"></div>
+        </div>
+        <button type="button" class="btn-close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+</template>
+
+<!-- Info message template (hidden, used by JavaScript) -->
+<template id="info-message-template">
+    <div class="alert alert-info alert-dismissible fade show" role="alert">
+        <i class="alert-icon fas fa-info-circle" aria-hidden="true"></i>
+        <div class="alert-content">
+            <div class="alert-message"></div>
+        </div>
+        <button type="button" class="btn-close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+</template>
+
+<!-- Toast template for AJAX notifications -->
+<template id="toast-template">
+    <div class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header">
+            <i class="toast-icon fas fa-bell" aria-hidden="true"></i>
+            <strong class="toast-title">Notification</strong>
+            <small class="toast-time">just now</small>
+            <button type="button" class="btn-close" data-dismiss="toast" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="toast-body">
+            <!-- Toast message content -->
+        </div>
+    </div>
+</template>
+
+<style>
+/* Messages and Alerts Styles */
+.messages-container {
+    position: fixed;
+    top: var(--spacing-lg);
+    right: var(--spacing-lg);
+    left: var(--spacing-lg);
+    z-index: 1050;
+    max-width: 500px;
+    margin-left: auto;
+    pointer-events: none;
+}
+
+.messages-container .alert {
+    pointer-events: auto;
+    margin-bottom: var(--spacing-md);
+    box-shadow: var(--shadow-lg);
+    border-radius: var(--border-radius-lg);
+    border: none;
+    display: flex;
+    align-items: flex-start;
+    padding: var(--spacing-lg);
+    animation: slideInFromTop 0.3s ease-out;
+}
+
+.alert-icon {
+    font-size: 1.25rem;
+    margin-right: var(--spacing-md);
+    margin-top: 2px;
+    flex-shrink: 0;
+}
+
+.alert-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.alert-title {
+    display: block;
+    font-weight: 600;
+    margin-bottom: var(--spacing-xs);
+    font-size: var(--font-size-base);
+}
+
+.alert-message {
+    line-height: 1.5;
+}
+
+.btn-close {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0;
+    margin-left: var(--spacing-md);
+    margin-top: 2px;
+    opacity: 0.6;
+    transition: opacity 0.2s ease;
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-close:hover {
+    opacity: 1;
+}
+
+/* Alert variants */
+.alert-success {
+    background-color: #d1fae5;
+    color: #065f46;
+    border-left: 4px solid var(--success-color);
+}
+
+.alert-danger,
+.alert-error {
+    background-color: #fee2e2;
+    color: #991b1b;
+    border-left: 4px solid var(--danger-color);
+}
+
+.alert-warning {
+    background-color: #fef3c7;
+    color: #92400e;
+    border-left: 4px solid var(--warning-color);
+}
+
+.alert-info {
+    background-color: #dbeafe;
+    color: #1e3a8a;
+    border-left: 4px solid var(--info-color);
+}
+
+/* Toast notifications */
+.toast-container {
+    position: fixed;
+    top: var(--spacing-lg);
+    right: var(--spacing-lg);
+    z-index: 1055;
+    max-width: 350px;
+}
+
+.toast {
+    background-color: var(--white);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-lg);
+    margin-bottom: var(--spacing-md);
+    opacity: 0;
+    transform: translateX(100%);
+    transition: var(--transition);
+    overflow: hidden;
+}
+
+.toast.show {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.toast-header {
+    display: flex;
+    align-items: center;
+    padding: var(--spacing-md) var(--spacing-lg);
+    background-color: var(--gray-100);
+    border-bottom: 1px solid var(--gray-200);
+    border-top-left-radius: calc(var(--border-radius) - 1px);
+    border-top-right-radius: calc(var(--border-radius) - 1px);
+}
+
+.toast-icon {
+    margin-right: var(--spacing-sm);
+    font-size: 1rem;
+}
+
+.toast-title {
+    margin-right: auto;
+    font-weight: 600;
+    color: var(--gray-800);
+}
+
+.toast-time {
+    color: var(--gray-500);
+    font-size: var(--font-size-sm);
+    margin-left: var(--spacing-sm);
+}
+
+.toast-body {
+    padding: var(--spacing-lg);
+    color: var(--gray-700);
+    line-height: 1.5;
+}
+
+/* Toast variants */
+.toast-success .toast-header {
+    background-color: #d1fae5;
+    color: #065f46;
+    border-bottom-color: #86efac;
+}
+
+.toast-success .toast-icon {
+    color: var(--success-color);
+}
+
+.toast-danger .toast-header,
+.toast-error .toast-header {
+    background-color: #fee2e2;
+    color: #991b1b;
+    border-bottom-color: #fca5a5;
+}
+
+.toast-danger .toast-icon,
+.toast-error .toast-icon {
+    color: var(--danger-color);
+}
+
+.toast-warning .toast-header {
+    background-color: #fef3c7;
+    color: #92400e;
+    border-bottom-color: #fcd34d;
+}
+
+.toast-warning .toast-icon {
+    color: var(--warning-color);
+}
+
+.toast-info .toast-header {
+    background-color: #dbeafe;
+    color: #1e3a8a;
+    border-bottom-color: #93c5fd;
+}
+
+.toast-info .toast-icon {
+    color: var(--info-color);
+}
+
+/* Animations */
+@keyframes slideInFromTop {
+    from {
+        opacity: 0;
+        transform: translateY(-100px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+        transform: scale(1);
+    }
+    to {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+}
+
+.alert.fade.out {
+    animation: fadeOut 0.3s ease-in forwards;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+    .messages-container {
+        top: var(--spacing-md);
+        right: var(--spacing-md);
+        left: var(--spacing-md);
+        max-width: none;
+    }
+    
+    .toast-container {
+        top: var(--spacing-md);
+        right: var(--spacing-md);
+        left: var(--spacing-md);
+        max-width: none;
+    }
+    
+    .messages-container .alert,
+    .toast {
+        margin-bottom: var(--spacing-sm);
+        padding: var(--spacing-md);
+    }
+    
+    .alert-icon,
+    .toast-icon {
+        font-size: 1rem;
+        margin-right: var(--spacing-sm);
+    }
+    
+    .toast-header {
+        padding: var(--spacing-sm) var(--spacing-md);
+    }
+    
+    .toast-body {
+        padding: var(--spacing-md);
+    }
+}
+
+/* Accessibility improvements */
+@media (prefers-reduced-motion: reduce) {
+    .alert,
+    .toast {
+        animation: none;
+        transition: none;
+    }
+    
+    .messages-container .alert {
+        animation: none;
+    }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+    .alert {
+        border: 2px solid currentColor;
+    }
+    
+    .toast {
+        border: 2px solid var(--gray-800);
+    }
+}
+
+/* Print styles */
+@media print {
+    .messages-container,
+    .toast-container {
+        display: none !important;
+    }
+}
+
+/* Focus styles for accessibility */
+.btn-close:focus {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+    border-radius: 2px;
+}
+</style>
+
+<script>
+// JavaScript for handling dynamic messages
+(function() {
+    'use strict';
+    
+    // Auto-dismiss alerts after 5 seconds
+    document.addEventListener('DOMContentLoaded', function() {
+        const alerts = document.querySelectorAll('.alert:not(.alert-permanent)');
+        
+        alerts.forEach(function(alert) {
+            setTimeout(function() {
+                if (alert.parentNode) {
+                    dismissAlert(alert);
+                }
+            }, 5000);
+        });
+    });
+    
+    // Handle alert dismissal
+    document.addEventListener('click', function(e) {
+        if (e.target.matches('[data-dismiss="alert"]') || e.target.closest('[data-dismiss="alert"]')) {
+            e.preventDefault();
+            const alert = e.target.closest('.alert');
+            if (alert) {
+                dismissAlert(alert);
+            }
+        }
+    });
+    
+    // Handle toast dismissal
+    document.addEventListener('click', function(e) {
+        if (e.target.matches('[data-dismiss="toast"]') || e.target.closest('[data-dismiss="toast"]')) {
+            e.preventDefault();
+            const toast = e.target.closest('.toast');
+            if (toast) {
+                dismissToast(toast);
+            }
+        }
+    });
+    
+    function dismissAlert(alert) {
+        alert.classList.add('fade', 'out');
+        setTimeout(function() {
+            if (alert.parentNode) {
+                alert.remove();
+            }
+        }, 300);
+    }
+    
+    function dismissToast(toast) {
+        toast.classList.remove('show');
+        setTimeout(function() {
+            if (toast.parentNode) {
+                toast.remove();
+            }
+        }, 300);
+    }
+    
+    // Global function to show messages from JavaScript
+    window.showMessage = function(message, type, options) {
+        type = type || 'info';
+        options = options || {};
+        
+        const container = document.querySelector('.messages-container') || 
+                         document.querySelector('#toast-container') ||
+                         document.body;
+        
+        const template = document.querySelector('#' + type + '-message-template') ||
+                        document.querySelector('#info-message-template');
+        
+        if (!template) {
+            console.error('Message template not found');
+            return;
+        }
+        
+        const alertElement = template.content.cloneNode(true);
+        const messageDiv = alertElement.querySelector('.alert-message');
+        
+        if (messageDiv) {
+            messageDiv.textContent = message;
+        }
+        
+        container.appendChild(alertElement);
+        
+        // Auto-dismiss if specified
+        if (options.autoDismiss !== false) {
+            setTimeout(function() {
+                const alert = container.querySelector('.alert:last-child');
+                if (alert) {
+                    dismissAlert(alert);
+                }
+            }, options.timeout || 5000);
+        }
+    };
+    
+    // Global function to show toasts
+    window.showToast = function(message, type, title) {
+        type = type || 'info';
+        title = title || 'Notification';
+        
+        const container = document.querySelector('#toast-container');
+        if (!container) return;
+        
+        const template = document.querySelector('#toast-template');
+        if (!template) return;
+        
+        const toastElement = template.content.cloneNode(true);
+        const toast = toastElement.querySelector('.toast');
+        const toastTitle = toastElement.querySelector('.toast-title');
+        const toastBody = toastElement.querySelector('.toast-body');
+        const toastIcon = toastElement.querySelector('.toast-icon');
+        
+        // Set content
+        toastTitle.textContent = title;
+        toastBody.textContent = message;
+        
+        // Set type-specific styling
+        toast.classList.add('toast-' + type);
+        
+        // Set icon based on type
+        const iconClass = {
+            success: 'fas fa-check-circle',
+            error: 'fas fa-exclamation-triangle',
+            danger: 'fas fa-exclamation-triangle',
+            warning: 'fas fa-exclamation-circle',
+            info: 'fas fa-info-circle'
+        }[type] || 'fas fa-bell';
+        
+        toastIcon.className = 'toast-icon ' + iconClass;
+        
+        container.appendChild(toastElement);
+        
+        // Show toast
+        setTimeout(function() {
+            toast.classList.add('show');
+        }, 100);
+        
+        // Auto-dismiss after 5 seconds
+        setTimeout(function() {
+            dismissToast(toast);
+        }, 5000);
+    };
+    
+})();
+</script>

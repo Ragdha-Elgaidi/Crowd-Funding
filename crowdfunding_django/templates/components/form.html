@@ -1,0 +1,481 @@
+{% load static %}
+{% load widget_tweaks %}
+
+<!-- Base form component with validation and error handling -->
+<form method="{{ method|default:'post' }}" 
+      action="{{ action|default:'' }}" 
+      class="form {{ form_class|default:'' }} {% if ajax_form %}ajax-form{% endif %}"
+      {% if form_id %}id="{{ form_id }}"{% endif %}
+      {% if enctype %}enctype="{{ enctype }}"{% endif %}
+      {% if ajax_form %}data-ajax-form="true"{% endif %}
+      {% if success_url %}data-success-url="{{ success_url }}"{% endif %}
+      {% if redirect_url %}data-redirect-url="{{ redirect_url }}"{% endif %}
+      novalidate>
+    
+    <!-- CSRF Token -->
+    {% csrf_token %}
+    
+    <!-- Form Title -->
+    {% if form_title %}
+        <div class="form-header">
+            <h2 class="form-title">{{ form_title }}</h2>
+            {% if form_description %}
+                <p class="form-description">{{ form_description }}</p>
+            {% endif %}
+        </div>
+    {% endif %}
+    
+    <!-- Form Errors Container -->
+    <div class="form-errors" id="form-errors" style="display: none;"></div>
+    
+    <!-- Non-field errors -->
+    {% if form.non_field_errors %}
+        <div class="alert alert-danger" role="alert">
+            <ul class="error-list">
+                {% for error in form.non_field_errors %}
+                    <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+    
+    <!-- Form Fields -->
+    <div class="form-fields">
+        {% for field in form %}
+            {% include 'components/form_field.html' with field=field %}
+        {% endfor %}
+        
+        <!-- Additional custom fields -->
+        {% block extra_fields %}{% endblock %}
+    </div>
+    
+    <!-- Form Actions -->
+    <div class="form-actions">
+        {% if show_cancel %}
+            <button type="button" 
+                    class="btn btn-secondary"
+                    {% if cancel_url %}onclick="window.location.href='{{ cancel_url }}'"{% else %}onclick="history.back()"{% endif %}>
+                <i class="fas fa-times" aria-hidden="true"></i>
+                {{ cancel_text|default:'Cancel' }}
+            </button>
+        {% endif %}
+        
+        <button type="submit" 
+                class="btn btn-primary"
+                {% if submit_id %}id="{{ submit_id }}"{% endif %}>
+            <i class="fas fa-spinner fa-spin" aria-hidden="true" style="display: none;"></i>
+            <span class="btn-text">{{ submit_text|default:'Submit' }}</span>
+        </button>
+        
+        {% block extra_actions %}{% endblock %}
+    </div>
+    
+    <!-- Form Footer -->
+    {% if form_footer %}
+        <div class="form-footer">
+            {{ form_footer|safe }}
+        </div>
+    {% endif %}
+</form>
+
+<!-- JavaScript for form handling -->
+<script>
+(function() {
+    'use strict';
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize all forms on the page
+        const forms = document.querySelectorAll('.form');
+        forms.forEach(initializeForm);
+    });
+    
+    function initializeForm(form) {
+        // Real-time validation
+        const fields = form.querySelectorAll('input, select, textarea');
+        fields.forEach(function(field) {
+            // Validate on blur
+            field.addEventListener('blur', function() {
+                validateField(field);
+            });
+            
+            // Clear errors on input
+            field.addEventListener('input', function() {
+                clearFieldErrors(field);
+            });
+        });
+        
+        // AJAX form submission
+        if (form.classList.contains('ajax-form')) {
+            form.addEventListener('submit', handleAjaxSubmit);
+        } else {
+            form.addEventListener('submit', handleRegularSubmit);
+        }
+    }
+    
+    function validateField(field) {
+        const fieldGroup = field.closest('.form-group');
+        if (!fieldGroup) return;
+        
+        // Clear previous errors
+        clearFieldErrors(field);
+        
+        const errors = [];
+        
+        // Required validation
+        if (field.hasAttribute('required') && !field.value.trim()) {
+            errors.push(field.dataset.requiredMessage || 'This field is required.');
+        }
+        
+        // Type-specific validation
+        if (field.value.trim()) {
+            switch (field.type) {
+                case 'email':
+                    if (!isValidEmail(field.value)) {
+                        errors.push('Please enter a valid email address.');
+                    }
+                    break;
+                case 'tel':
+                    if (!isValidPhone(field.value)) {
+                        errors.push('Please enter a valid phone number.');
+                    }
+                    break;
+                case 'url':
+                    if (!isValidURL(field.value)) {
+                        errors.push('Please enter a valid URL.');
+                    }
+                    break;
+                case 'number':
+                    const min = field.getAttribute('min');
+                    const max = field.getAttribute('max');
+                    const value = parseFloat(field.value);
+                    
+                    if (isNaN(value)) {
+                        errors.push('Please enter a valid number.');
+                    } else {
+                        if (min && value < parseFloat(min)) {
+                            errors.push(`Value must be at least ${min}.`);
+                        }
+                        if (max && value > parseFloat(max)) {
+                            errors.push(`Value must be no more than ${max}.`);
+                        }
+                    }
+                    break;
+            }
+            
+            // Pattern validation
+            const pattern = field.getAttribute('pattern');
+            if (pattern && !new RegExp(pattern).test(field.value)) {
+                errors.push(field.dataset.patternMessage || 'Please match the required format.');
+            }
+            
+            // Length validation
+            const minLength = field.getAttribute('minlength');
+            const maxLength = field.getAttribute('maxlength');
+            
+            if (minLength && field.value.length < parseInt(minLength)) {
+                errors.push(`Must be at least ${minLength} characters long.`);
+            }
+            if (maxLength && field.value.length > parseInt(maxLength)) {
+                errors.push(`Must be no more than ${maxLength} characters long.`);
+            }
+        }
+        
+        // Custom validation
+        if (field.dataset.customValidation) {
+            const customValidator = window[field.dataset.customValidation];
+            if (typeof customValidator === 'function') {
+                const customErrors = customValidator(field.value, field);
+                if (customErrors) {
+                    errors.push(...(Array.isArray(customErrors) ? customErrors : [customErrors]));
+                }
+            }
+        }
+        
+        // Display errors
+        if (errors.length > 0) {
+            showFieldErrors(field, errors);
+            return false;
+        }
+        
+        // Mark as valid
+        fieldGroup.classList.add('is-valid');
+        return true;
+    }
+    
+    function clearFieldErrors(field) {
+        const fieldGroup = field.closest('.form-group');
+        if (!fieldGroup) return;
+        
+        fieldGroup.classList.remove('is-invalid', 'is-valid');
+        
+        const errorContainer = fieldGroup.querySelector('.invalid-feedback');
+        if (errorContainer) {
+            errorContainer.style.display = 'none';
+            errorContainer.innerHTML = '';
+        }
+        
+        field.classList.remove('is-invalid', 'is-valid');
+        field.removeAttribute('aria-describedby');
+    }
+    
+    function showFieldErrors(field, errors) {
+        const fieldGroup = field.closest('.form-group');
+        if (!fieldGroup) return;
+        
+        fieldGroup.classList.add('is-invalid');
+        fieldGroup.classList.remove('is-valid');
+        field.classList.add('is-invalid');
+        
+        let errorContainer = fieldGroup.querySelector('.invalid-feedback');
+        if (!errorContainer) {
+            errorContainer = document.createElement('div');
+            errorContainer.className = 'invalid-feedback';
+            
+            // Insert after the input
+            const input = fieldGroup.querySelector('input, select, textarea');
+            if (input && input.nextSibling) {
+                fieldGroup.insertBefore(errorContainer, input.nextSibling);
+            } else {
+                fieldGroup.appendChild(errorContainer);
+            }
+        }
+        
+        errorContainer.innerHTML = errors.map(error => `<div>${error}</div>`).join('');
+        errorContainer.style.display = 'block';
+        
+        // Set aria-describedby for accessibility
+        const errorId = 'error-' + (field.id || Math.random().toString(36).substr(2, 9));
+        errorContainer.id = errorId;
+        field.setAttribute('aria-describedby', errorId);
+    }
+    
+    function handleRegularSubmit(e) {
+        const form = e.target;
+        const submitBtn = form.querySelector('button[type="submit"]');
+        
+        // Validate all fields
+        const fields = form.querySelectorAll('input, select, textarea');
+        let isValid = true;
+        
+        fields.forEach(function(field) {
+            if (!validateField(field)) {
+                isValid = false;
+            }
+        });
+        
+        if (!isValid) {
+            e.preventDefault();
+            
+            // Focus first invalid field
+            const firstInvalid = form.querySelector('.is-invalid input, .is-invalid select, .is-invalid textarea');
+            if (firstInvalid) {
+                firstInvalid.focus();
+            }
+            
+            return false;
+        }
+        
+        // Show loading state
+        if (submitBtn) {
+            showLoadingState(submitBtn);
+        }
+    }
+    
+    function handleAjaxSubmit(e) {
+        e.preventDefault();
+        
+        const form = e.target;
+        const submitBtn = form.querySelector('button[type="submit"]');
+        
+        // Validate all fields first
+        const fields = form.querySelectorAll('input, select, textarea');
+        let isValid = true;
+        
+        fields.forEach(function(field) {
+            if (!validateField(field)) {
+                isValid = false;
+            }
+        });
+        
+        if (!isValid) {
+            // Focus first invalid field
+            const firstInvalid = form.querySelector('.is-invalid input, .is-invalid select, .is-invalid textarea');
+            if (firstInvalid) {
+                firstInvalid.focus();
+            }
+            return;
+        }
+        
+        // Show loading state
+        if (submitBtn) {
+            showLoadingState(submitBtn);
+        }
+        
+        // Prepare form data
+        const formData = new FormData(form);
+        
+        // Make AJAX request
+        fetch(form.action || window.location.pathname, {
+            method: form.method || 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+            }
+        })
+        .then(response => {
+            return response.json().then(data => ({
+                status: response.status,
+                ok: response.ok,
+                data: data
+            }));
+        })
+        .then(result => {
+            hideLoadingState(submitBtn);
+            
+            if (result.ok) {
+                // Success
+                if (result.data.message) {
+                    showMessage(result.data.message, 'success');
+                }
+                
+                // Handle redirect
+                const successUrl = form.dataset.successUrl || result.data.redirect_url;
+                if (successUrl) {
+                    setTimeout(() => window.location.href = successUrl, 1000);
+                } else {
+                    // Reset form
+                    form.reset();
+                    
+                    // Clear all validation states
+                    fields.forEach(clearFieldErrors);
+                }
+                
+                // Trigger custom success event
+                form.dispatchEvent(new CustomEvent('ajax:success', {
+                    detail: result.data
+                }));
+            } else {
+                // Handle errors
+                if (result.data.errors) {
+                    handleFormErrors(form, result.data.errors);
+                } else if (result.data.message) {
+                    showMessage(result.data.message, 'error');
+                }
+                
+                // Trigger custom error event
+                form.dispatchEvent(new CustomEvent('ajax:error', {
+                    detail: result.data
+                }));
+            }
+        })
+        .catch(error => {
+            hideLoadingState(submitBtn);
+            console.error('Form submission error:', error);
+            showMessage('An error occurred while submitting the form. Please try again.', 'error');
+            
+            // Trigger custom error event
+            form.dispatchEvent(new CustomEvent('ajax:error', {
+                detail: { error: error.message }
+            }));
+        });
+    }
+    
+    function handleFormErrors(form, errors) {
+        // Clear previous errors
+        const formErrorsContainer = form.querySelector('#form-errors');
+        if (formErrorsContainer) {
+            formErrorsContainer.innerHTML = '';
+            formErrorsContainer.style.display = 'none';
+        }
+        
+        // Handle field-specific errors
+        for (const fieldName in errors) {
+            if (fieldName === '__all__' || fieldName === 'non_field_errors') {
+                // Non-field errors
+                if (formErrorsContainer) {
+                    const errorList = errors[fieldName].map(error => `<li>${error}</li>`).join('');
+                    formErrorsContainer.innerHTML = `
+                        <div class="alert alert-danger">
+                            <ul class="error-list">${errorList}</ul>
+                        </div>
+                    `;
+                    formErrorsContainer.style.display = 'block';
+                }
+            } else {
+                // Field-specific errors
+                const field = form.querySelector(`[name="${fieldName}"]`);
+                if (field) {
+                    showFieldErrors(field, errors[fieldName]);
+                }
+            }
+        }
+        
+        // Focus first invalid field
+        const firstInvalid = form.querySelector('.is-invalid input, .is-invalid select, .is-invalid textarea');
+        if (firstInvalid) {
+            firstInvalid.focus();
+        }
+    }
+    
+    function showLoadingState(button) {
+        if (!button) return;
+        
+        button.disabled = true;
+        
+        const spinner = button.querySelector('.fa-spinner');
+        const text = button.querySelector('.btn-text');
+        
+        if (spinner) spinner.style.display = 'inline-block';
+        if (text) text.textContent = 'Processing...';
+        
+        button.classList.add('loading');
+    }
+    
+    function hideLoadingState(button) {
+        if (!button) return;
+        
+        button.disabled = false;
+        
+        const spinner = button.querySelector('.fa-spinner');
+        const text = button.querySelector('.btn-text');
+        
+        if (spinner) spinner.style.display = 'none';
+        if (text) text.textContent = button.dataset.originalText || 'Submit';
+        
+        button.classList.remove('loading');
+    }
+    
+    // Validation helper functions
+    function isValidEmail(email) {
+        const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return re.test(email);
+    }
+    
+    function isValidPhone(phone) {
+        // Egyptian phone number patterns
+        const patterns = [
+            /^\+201[0-9]{9}$/,  // +201xxxxxxxxx
+            /^01[0-9]{9}$/,     // 01xxxxxxxxx
+            /^1[0-9]{9}$/       // 1xxxxxxxxx
+        ];
+        
+        return patterns.some(pattern => pattern.test(phone.replace(/\s/g, '')));
+    }
+    
+    function isValidURL(url) {
+        try {
+            new URL(url);
+            return true;
+        } catch {
+            return false;
+        }
+    }
+    
+    // Make functions available globally
+    window.validateField = validateField;
+    window.clearFieldErrors = clearFieldErrors;
+    window.showFieldErrors = showFieldErrors;
+    
+})();
+</script>

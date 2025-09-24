@@ -1,0 +1,324 @@
+{% extends 'base.html' %} {% load static %} {% block extra_css %}
+<style>
+  .auth-container {
+    max-width: 450px;
+    margin: 3rem auto;
+    padding: 2rem;
+    background: var(--white);
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .auth-header {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+
+  .auth-header h1 {
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+  }
+
+  .auth-header p {
+    color: var(--gray-600);
+  }
+
+  .auth-links {
+    text-align: center;
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--gray-200);
+  }
+
+  .auth-links a {
+    color: var(--primary-color);
+    text-decoration: none;
+  }
+
+  .auth-links a:hover {
+    text-decoration: underline;
+  }
+
+  .forgot-password {
+    text-align: right;
+    margin-top: 0.5rem;
+  }
+
+  .forgot-password a {
+    color: var(--gray-600);
+    text-decoration: none;
+    font-size: var(--font-size-sm);
+  }
+
+  .forgot-password a:hover {
+    color: var(--primary-color);
+    text-decoration: underline;
+  }
+
+  .remember-me-group {
+    display: flex;
+    align-items: center;
+    margin: 1rem 0;
+  }
+
+  .remember-me-group input {
+    margin-right: 0.5rem;
+  }
+
+  .demo-accounts {
+    background: var(--gray-50);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--border-radius);
+    padding: 1rem;
+    margin-top: 1rem;
+  }
+
+  .demo-accounts h4 {
+    color: var(--gray-700);
+    margin-bottom: 0.5rem;
+    font-size: var(--font-size-sm);
+  }
+
+  .demo-accounts p {
+    color: var(--gray-600);
+    font-size: var(--font-size-sm);
+    margin: 0;
+  }
+</style>
+{% endblock %} {% block content %}
+<!-- Breadcrumb -->
+{% include 'components/breadcrumb.html' %}
+
+<div class="container">
+  <div class="auth-container">
+    <!-- Header -->
+    <div class="auth-header">
+      <h1><i class="fas fa-sign-in-alt"></i> Welcome Back</h1>
+      <p>Sign in to your account to continue</p>
+    </div>
+
+    <!-- Login Form -->
+    <form
+      method="post"
+      class="form ajax-form"
+      id="login-form"
+      data-ajax-form="true"
+    >
+      {% csrf_token %}
+
+      <!-- Email Field -->
+      <div class="form-group">
+        <label for="{{ form.username.id_for_label }}" class="form-label">
+          Email Address
+          <span class="required-indicator">*</span>
+        </label>
+        <div class="input-group">
+          <div class="input-group-prepend">
+            <span class="input-group-text">
+              <i class="fas fa-envelope" aria-hidden="true"></i>
+            </span>
+          </div>
+          {{ form.username }}
+        </div>
+        {% if form.username.errors %}
+        <div class="invalid-feedback">
+          {% for error in form.username.errors %}
+          <div>{{ error }}</div>
+          {% endfor %}
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- Password Field -->
+      <div class="form-group">
+        <label for="{{ form.password.id_for_label }}" class="form-label">
+          Password
+          <span class="required-indicator">*</span>
+        </label>
+        <div class="password-input-wrapper">
+          {{ form.password }}
+          <button
+            type="button"
+            class="password-toggle"
+            data-toggle="password"
+            aria-label="Toggle password visibility"
+          >
+            <i class="fas fa-eye" aria-hidden="true"></i>
+          </button>
+        </div>
+        {% if form.password.errors %}
+        <div class="invalid-feedback">
+          {% for error in form.password.errors %}
+          <div>{{ error }}</div>
+          {% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="forgot-password">
+          <a
+            href="#"
+            onclick="alert('Password reset functionality coming soon!')"
+          >
+            Forgot your password?
+          </a>
+        </div>
+      </div>
+
+      <!-- Remember Me -->
+      <div class="remember-me-group">
+        {{ form.remember_me }}
+        <label for="{{ form.remember_me.id_for_label }}">
+          Remember me on this device
+        </label>
+      </div>
+
+      <!-- Submit Button -->
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary btn-block">
+          <i
+            class="fas fa-spinner fa-spin"
+            aria-hidden="true"
+            style="display: none"
+          ></i>
+          <span class="btn-text">Sign In</span>
+        </button>
+      </div>
+
+      <!-- Non-field errors -->
+      {% if form.non_field_errors %}
+      <div class="alert alert-danger" role="alert">
+        {% for error in form.non_field_errors %}
+        <div>{{ error }}</div>
+        {% endfor %}
+      </div>
+      {% endif %}
+    </form>
+
+    <!-- Registration Link -->
+    <div class="auth-links">
+      <p>
+        Don't have an account?
+        <a href="{% url 'accounts:register' %}">Create one here</a>
+      </p>
+    </div>
+
+    <!-- Demo Information -->
+    <div class="demo-accounts">
+      <h4><i class="fas fa-info-circle"></i> Demo Information</h4>
+      <p>
+        This is a demonstration crowdfunding platform. You can create a real
+        account or explore the features.
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- Loading Overlay -->
+{% include 'components/loading.html' with id='login-loading' hidden=True %} {%
+endblock %} {% block extra_js %}
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const form = document.getElementById("login-form");
+    const loadingOverlay = document.getElementById("login-loading");
+
+    if (form) {
+      // Handle form submission
+      form.addEventListener("submit", function (e) {
+        e.preventDefault();
+
+        // Show loading
+        if (loadingOverlay) {
+          showLoading({
+            text: "Signing you in...",
+            spinner: "default",
+          });
+        }
+
+        // Get form data
+        const formData = new FormData(form);
+
+        // Make AJAX request
+        fetch(form.action || window.location.pathname, {
+          method: "POST",
+          body: formData,
+          headers: {
+            "X-Requested-With": "XMLHttpRequest",
+            "X-CSRFToken": formData.get("csrfmiddlewaretoken"),
+          },
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            hideLoading();
+
+            if (data.success) {
+              // Show success message
+              showMessage(data.message || "Login successful!", "success");
+
+              // Redirect after delay
+              setTimeout(function () {
+                window.location.href =
+                  data.redirect_url || "{% url 'projects:dashboard' %}";
+              }, 1000);
+            } else {
+              // Show error message
+              showMessage(
+                data.message || "Login failed. Please try again.",
+                "error"
+              );
+
+              // Clear password field
+              const passwordField = form.querySelector(
+                'input[name="password"]'
+              );
+              if (passwordField) {
+                passwordField.value = "";
+                passwordField.focus();
+              }
+            }
+          })
+          .catch((error) => {
+            hideLoading();
+            console.error("Login error:", error);
+            showMessage("An error occurred. Please try again.", "error");
+          });
+      });
+
+      // Password toggle functionality
+      const passwordToggle = form.querySelector(".password-toggle");
+      const passwordInput = form.querySelector('input[name="password"]');
+
+      if (passwordToggle && passwordInput) {
+        passwordToggle.addEventListener("click", function () {
+          const icon = this.querySelector("i");
+
+          if (passwordInput.type === "password") {
+            passwordInput.type = "text";
+            icon.classList.remove("fa-eye");
+            icon.classList.add("fa-eye-slash");
+            this.setAttribute("aria-label", "Hide password");
+          } else {
+            passwordInput.type = "password";
+            icon.classList.remove("fa-eye-slash");
+            icon.classList.add("fa-eye");
+            this.setAttribute("aria-label", "Show password");
+          }
+        });
+      }
+
+      // Auto-focus email field
+      const emailInput = form.querySelector('input[name="username"]');
+      if (emailInput && !emailInput.value) {
+        emailInput.focus();
+      }
+
+      // Handle Enter key in form
+      form.addEventListener("keypress", function (e) {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          form.dispatchEvent(new Event("submit"));
+        }
+      });
+    }
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,407 @@
+{% extends 'base.html' %} {% load static %} {% block extra_css %}
+<style>
+  .profile-update-container {
+    max-width: 600px;
+    margin: 2rem auto;
+    background: var(--white);
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+  }
+
+  .profile-header {
+    background: linear-gradient(
+      135deg,
+      var(--primary-color),
+      var(--secondary-color)
+    );
+    color: var(--white);
+    padding: 2rem;
+    text-align: center;
+  }
+
+  .profile-header h1 {
+    margin: 0 0 0.5rem;
+    font-size: 1.5rem;
+  }
+
+  .profile-header p {
+    margin: 0;
+    opacity: 0.9;
+  }
+
+  .form-container {
+    padding: 2rem;
+  }
+
+  .form-section {
+    margin-bottom: 2rem;
+  }
+
+  .section-title {
+    color: var(--gray-800);
+    font-weight: 600;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--gray-200);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .phone-help {
+    font-size: var(--font-size-sm);
+    color: var(--gray-600);
+    margin-top: 0.5rem;
+  }
+
+  .phone-examples {
+    background: var(--gray-50);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--border-radius);
+    padding: 1rem;
+    margin-top: 0.5rem;
+  }
+
+  .phone-examples h4 {
+    margin: 0 0 0.5rem;
+    font-size: var(--font-size-sm);
+    color: var(--gray-700);
+  }
+
+  .phone-examples ul {
+    margin: 0;
+    padding-left: 1rem;
+    font-size: var(--font-size-sm);
+    color: var(--gray-600);
+  }
+
+  .form-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--gray-200);
+  }
+
+  .btn-group {
+    display: flex;
+    gap: 1rem;
+  }
+
+  .cancel-link {
+    color: var(--gray-600);
+    text-decoration: none;
+    padding: 0.75rem 1.5rem;
+    border: 1px solid var(--gray-300);
+    border-radius: var(--border-radius);
+    transition: var(--transition);
+  }
+
+  .cancel-link:hover {
+    background: var(--gray-50);
+    color: var(--gray-800);
+    text-decoration: none;
+  }
+
+  @media (max-width: 768px) {
+    .profile-update-container {
+      margin: 1rem;
+    }
+
+    .form-container {
+      padding: 1.5rem;
+    }
+
+    .form-actions {
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .btn-group {
+      width: 100%;
+      flex-direction: column;
+    }
+  }
+</style>
+{% endblock %} {% block content %}
+<!-- Breadcrumb -->
+{% include 'components/breadcrumb.html' %}
+
+<div class="container">
+  <div class="profile-update-container">
+    <!-- Header -->
+    <div class="profile-header">
+      <h1><i class="fas fa-user-edit"></i> Update Profile</h1>
+      <p>Keep your information up to date</p>
+    </div>
+
+    <!-- Form -->
+    <div class="form-container">
+      <form
+        method="post"
+        class="form ajax-form"
+        id="profile-update-form"
+        data-ajax-form="true"
+      >
+        {% csrf_token %}
+
+        <!-- Personal Information Section -->
+        <div class="form-section">
+          <h3 class="section-title">
+            <i class="fas fa-user" aria-hidden="true"></i>
+            Personal Information
+          </h3>
+
+          <div class="form-row">
+            <div class="form-group col-md-6">
+              <label
+                for="{{ form.first_name.id_for_label }}"
+                class="form-label"
+              >
+                First Name
+                <span class="required-indicator">*</span>
+              </label>
+              {{ form.first_name }} {% if form.first_name.errors %}
+              <div class="invalid-feedback">
+                {% for error in form.first_name.errors %}
+                <div>{{ error }}</div>
+                {% endfor %}
+              </div>
+              {% endif %}
+            </div>
+
+            <div class="form-group col-md-6">
+              <label for="{{ form.last_name.id_for_label }}" class="form-label">
+                Last Name
+                <span class="required-indicator">*</span>
+              </label>
+              {{ form.last_name }} {% if form.last_name.errors %}
+              <div class="invalid-feedback">
+                {% for error in form.last_name.errors %}
+                <div>{{ error }}</div>
+                {% endfor %}
+              </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+
+        <!-- Contact Information Section -->
+        <div class="form-section">
+          <h3 class="section-title">
+            <i class="fas fa-envelope" aria-hidden="true"></i>
+            Contact Information
+          </h3>
+
+          <div class="form-group">
+            <label for="{{ form.email.id_for_label }}" class="form-label">
+              Email Address
+              <span class="required-indicator">*</span>
+            </label>
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <span class="input-group-text">
+                  <i class="fas fa-envelope" aria-hidden="true"></i>
+                </span>
+              </div>
+              {{ form.email }}
+            </div>
+            {% if form.email.errors %}
+            <div class="invalid-feedback">
+              {% for error in form.email.errors %}
+              <div>{{ error }}</div>
+              {% endfor %}
+            </div>
+            {% endif %}
+          </div>
+
+          <div class="form-group">
+            <label for="{{ form.phone.id_for_label }}" class="form-label">
+              Phone Number
+            </label>
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <span class="input-group-text">
+                  <i class="fas fa-phone" aria-hidden="true"></i>
+                </span>
+              </div>
+              {{ form.phone }}
+            </div>
+            {% if form.phone.errors %}
+            <div class="invalid-feedback">
+              {% for error in form.phone.errors %}
+              <div>{{ error }}</div>
+              {% endfor %}
+            </div>
+            {% endif %}
+            <div class="phone-help">
+              Enter your Egyptian mobile phone number
+            </div>
+            <div class="phone-examples">
+              <h4>Accepted formats:</h4>
+              <ul>
+                <li>+201012345678 (with country code)</li>
+                <li>01012345678 (local format)</li>
+                <li>1012345678 (without leading zero)</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="form-actions">
+          <div class="btn-group">
+            <a href="{% url 'accounts:profile' %}" class="cancel-link">
+              <i class="fas fa-times" aria-hidden="true"></i>
+              Cancel
+            </a>
+            <button type="submit" class="btn btn-primary">
+              <i
+                class="fas fa-spinner fa-spin"
+                aria-hidden="true"
+                style="display: none"
+              ></i>
+              <span class="btn-text">
+                <i class="fas fa-save" aria-hidden="true"></i>
+                Update Profile
+              </span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Non-field errors -->
+        {% if form.non_field_errors %}
+        <div class="alert alert-danger" role="alert">
+          {% for error in form.non_field_errors %}
+          <div>{{ error }}</div>
+          {% endfor %}
+        </div>
+        {% endif %}
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Loading Overlay -->
+{% include 'components/loading.html' with id='profile-update-loading'
+hidden=True %} {% endblock %} {% block extra_js %}
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const form = document.getElementById("profile-update-form");
+    const loadingOverlay = document.getElementById("profile-update-loading");
+
+    if (form) {
+      // Phone number formatting
+      const phoneInput = form.querySelector('input[name="phone"]');
+      if (phoneInput) {
+        phoneInput.addEventListener("input", function () {
+          let value = this.value.replace(/\D/g, ""); // Remove non-digits
+
+          // Egyptian phone formatting
+          if (value.startsWith("2")) {
+            // +20 format
+            if (value.length <= 13) {
+              this.value = "+" + value;
+            }
+          } else if (value.startsWith("01")) {
+            // 01 format
+            this.value = value;
+          } else if (value.startsWith("1") && value.length <= 10) {
+            // 1 format
+            this.value = value;
+          } else {
+            // Default to local format
+            this.value = value;
+          }
+        });
+
+        // Validate on blur
+        phoneInput.addEventListener("blur", function () {
+          const value = this.value.trim();
+          if (value && !validateEgyptianPhone(value)) {
+            showMessage(
+              "Please enter a valid Egyptian phone number",
+              "warning"
+            );
+          }
+        });
+      }
+
+      // Handle form submission
+      form.addEventListener("submit", function (e) {
+        e.preventDefault();
+
+        // Show loading
+        if (loadingOverlay) {
+          showLoading({
+            text: "Updating your profile...",
+            spinner: "default",
+          });
+        }
+
+        // Get form data
+        const formData = new FormData(form);
+
+        // Make AJAX request
+        fetch(form.action || window.location.pathname, {
+          method: "POST",
+          body: formData,
+          headers: {
+            "X-Requested-With": "XMLHttpRequest",
+            "X-CSRFToken": formData.get("csrfmiddlewaretoken"),
+          },
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            hideLoading();
+
+            if (data.success) {
+              // Show success message
+              showMessage(
+                data.message || "Profile updated successfully!",
+                "success"
+              );
+
+              // Redirect after delay
+              setTimeout(function () {
+                window.location.href =
+                  data.redirect_url || "{% url 'accounts:profile' %}";
+              }, 1500);
+            } else {
+              // Show error message
+              showMessage(
+                data.message || "Failed to update profile. Please try again.",
+                "error"
+              );
+
+              // Focus first error field
+              const firstErrorField = form.querySelector(".is-invalid");
+              if (firstErrorField) {
+                firstErrorField.focus();
+              }
+            }
+          })
+          .catch((error) => {
+            hideLoading();
+            console.error("Profile update error:", error);
+            showMessage("An error occurred. Please try again.", "error");
+          });
+      });
+    }
+
+    // Egyptian phone validation function
+    function validateEgyptianPhone(phone) {
+      const patterns = [
+        /^\+201[0125][0-9]{8}$/, // +201xxxxxxxxx
+        /^01[0125][0-9]{8}$/, // 01xxxxxxxxx
+        /^1[0125][0-9]{8}$/, // 1xxxxxxxxx
+      ];
+
+      return patterns.some((pattern) => pattern.test(phone));
+    }
+  });
+</script>
+{% endblock %}

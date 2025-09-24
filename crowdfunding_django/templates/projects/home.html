@@ -1,0 +1,392 @@
+{% extends 'base.html' %} {% load static %} {% block extra_css %}
+<style>
+  .hero-section {
+    background: linear-gradient(
+      135deg,
+      var(--primary-color),
+      var(--secondary-color)
+    );
+    color: var(--white);
+    padding: 4rem 0;
+    text-align: center;
+  }
+
+  .hero-title {
+    font-size: 3rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+  }
+
+  .hero-subtitle {
+    font-size: 1.25rem;
+    opacity: 0.9;
+    margin-bottom: 2rem;
+  }
+
+  .hero-cta {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .btn-hero {
+    padding: 1rem 2rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    border-radius: var(--border-radius);
+    text-decoration: none;
+    transition: var(--transition);
+  }
+
+  .btn-primary-hero {
+    background: var(--white);
+    color: var(--primary-color);
+  }
+
+  .btn-primary-hero:hover {
+    background: var(--gray-100);
+    color: var(--primary-color);
+  }
+
+  .btn-outline-hero {
+    background: transparent;
+    color: var(--white);
+    border: 2px solid var(--white);
+  }
+
+  .btn-outline-hero:hover {
+    background: var(--white);
+    color: var(--primary-color);
+  }
+
+  .stats-section {
+    padding: 3rem 0;
+    background: var(--gray-50);
+  }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 2rem;
+    text-align: center;
+  }
+
+  .stat-item {
+    background: var(--white);
+    padding: 2rem;
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .stat-number {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+  }
+
+  .stat-label {
+    color: var(--gray-600);
+    font-weight: 500;
+  }
+
+  .featured-section {
+    padding: 3rem 0;
+  }
+
+  .section-title {
+    text-align: center;
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--gray-900);
+    margin-bottom: 3rem;
+  }
+
+  .projects-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+  }
+
+  .project-card {
+    background: var(--white);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--border-radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+    transition: var(--transition);
+  }
+
+  .project-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .project-image {
+    height: 200px;
+    background: linear-gradient(
+      45deg,
+      var(--primary-color),
+      var(--secondary-color)
+    );
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--white);
+    font-size: 3rem;
+  }
+
+  .project-content {
+    padding: 1.5rem;
+  }
+
+  .project-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: var(--gray-900);
+  }
+
+  .project-title a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .project-title a:hover {
+    color: var(--primary-color);
+  }
+
+  .project-description {
+    color: var(--gray-600);
+    margin-bottom: 1rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .project-progress {
+    margin-bottom: 1rem;
+  }
+
+  .progress-info {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+    font-size: var(--font-size-sm);
+  }
+
+  .progress-bar {
+    width: 100%;
+    height: 8px;
+    background: var(--gray-200);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(
+      90deg,
+      var(--primary-color),
+      var(--secondary-color)
+    );
+  }
+
+  .how-it-works {
+    padding: 3rem 0;
+    background: var(--gray-50);
+  }
+
+  .steps-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+    margin-top: 2rem;
+  }
+
+  .step-item {
+    text-align: center;
+  }
+
+  .step-icon {
+    width: 80px;
+    height: 80px;
+    background: var(--primary-color);
+    color: var(--white);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    margin: 0 auto 1rem;
+  }
+
+  .step-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: var(--gray-900);
+  }
+
+  .step-description {
+    color: var(--gray-600);
+  }
+
+  @media (max-width: 768px) {
+    .hero-title {
+      font-size: 2rem;
+    }
+
+    .hero-cta {
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .btn-hero {
+      width: 100%;
+      max-width: 300px;
+    }
+  }
+</style>
+{% endblock %} {% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+  <div class="container">
+    <h1 class="hero-title">Turn Your Ideas Into Reality</h1>
+    <p class="hero-subtitle">
+      Join thousands of creators who have successfully funded their projects
+      through our platform
+    </p>
+    <div class="hero-cta">
+      <a href="{% url 'projects:create' %}" class="btn-hero btn-primary-hero">
+        <i class="fas fa-rocket"></i> Start Your Project
+      </a>
+      <a href="{% url 'projects:list' %}" class="btn-hero btn-outline-hero">
+        <i class="fas fa-search"></i> Explore Projects
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- Stats Section -->
+<section class="stats-section">
+  <div class="container">
+    <div class="stats-grid">
+      <div class="stat-item">
+        <div class="stat-number">{{ total_projects|default:"0" }}</div>
+        <div class="stat-label">Active Projects</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number">
+          ${{ total_funding|floatformat:0|default:"0" }}
+        </div>
+        <div class="stat-label">Total Funded</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number">{{ total_backers|default:"0" }}</div>
+        <div class="stat-label">Happy Backers</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number">{{ success_rate|default:"95" }}%</div>
+        <div class="stat-label">Success Rate</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Featured Projects -->
+{% if featured_projects %}
+<section class="featured-section">
+  <div class="container">
+    <h2 class="section-title">Featured Projects</h2>
+    <div class="projects-grid">
+      {% for project in featured_projects %}
+      <div class="project-card">
+        <div class="project-image">
+          <i class="fas fa-lightbulb"></i>
+        </div>
+        <div class="project-content">
+          <h3 class="project-title">
+            <a href="{% url 'projects:detail' project.pk %}">
+              {{ project.title }}
+            </a>
+          </h3>
+          <p class="project-description">
+            {{ project.details|truncatewords:15 }}
+          </p>
+          <div class="project-progress">
+            <div class="progress-info">
+              <span
+                ><strong>${{ project.current_amount|floatformat:0 }}</strong>
+                raised</span
+              >
+              <span>{{ project.funding_percentage|floatformat:0 }}%</span>
+            </div>
+            <div class="progress-bar">
+              <div
+                class="progress-fill"
+                style="width: {{ project.funding_percentage|floatformat:0 }}%"
+              ></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    <div style="text-align: center; margin-top: 2rem">
+      <a href="{% url 'projects:list' %}" class="btn btn-primary">
+        View All Projects
+      </a>
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- How It Works -->
+<section class="how-it-works">
+  <div class="container">
+    <h2 class="section-title">How It Works</h2>
+    <div class="steps-grid">
+      <div class="step-item">
+        <div class="step-icon">
+          <i class="fas fa-lightbulb"></i>
+        </div>
+        <h3 class="step-title">Create Your Project</h3>
+        <p class="step-description">
+          Share your idea with detailed descriptions, goals, and funding targets
+        </p>
+      </div>
+      <div class="step-item">
+        <div class="step-icon">
+          <i class="fas fa-share-alt"></i>
+        </div>
+        <h3 class="step-title">Share & Promote</h3>
+        <p class="step-description">
+          Spread the word about your project to friends, family, and the
+          community
+        </p>
+      </div>
+      <div class="step-item">
+        <div class="step-icon">
+          <i class="fas fa-heart"></i>
+        </div>
+        <h3 class="step-title">Get Funded</h3>
+        <p class="step-description">
+          Receive contributions from backers who believe in your vision
+        </p>
+      </div>
+      <div class="step-item">
+        <div class="step-icon">
+          <i class="fas fa-rocket"></i>
+        </div>
+        <h3 class="step-title">Make It Happen</h3>
+        <p class="step-description">
+          Use the funds to bring your project to life and update your backers
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

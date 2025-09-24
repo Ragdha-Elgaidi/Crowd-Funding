@@ -1,0 +1,429 @@
+{% extends 'base.html' %} {% load static %} {% block extra_css %}
+<style>
+  .profile-container {
+    max-width: 800px;
+    margin: 2rem auto;
+  }
+
+  .profile-header {
+    background: linear-gradient(
+      135deg,
+      var(--primary-color),
+      var(--secondary-color)
+    );
+    color: var(--white);
+    padding: 2rem;
+    border-radius: var(--border-radius-lg);
+    margin-bottom: 2rem;
+    text-align: center;
+  }
+
+  .profile-avatar {
+    width: 100px;
+    height: 100px;
+    background: var(--white);
+    color: var(--primary-color);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5rem;
+    margin: 0 auto 1rem;
+    box-shadow: var(--shadow-md);
+  }
+
+  .profile-name {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+
+  .profile-email {
+    opacity: 0.9;
+  }
+
+  .profile-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .stat-card {
+    background: var(--white);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+    text-align: center;
+    box-shadow: var(--shadow-sm);
+    transition: var(--transition);
+  }
+
+  .stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+  }
+
+  .stat-number {
+    font-size: 2rem;
+    font-weight: 600;
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+  }
+
+  .stat-label {
+    color: var(--gray-600);
+    font-size: var(--font-size-sm);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .profile-sections {
+    display: grid;
+    gap: 2rem;
+  }
+
+  .profile-section {
+    background: var(--white);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--border-radius);
+    overflow: hidden;
+  }
+
+  .section-header {
+    background: var(--gray-50);
+    border-bottom: 1px solid var(--gray-200);
+    padding: 1rem 1.5rem;
+    display: flex;
+    justify-content: between;
+    align-items: center;
+  }
+
+  .section-title {
+    font-weight: 600;
+    color: var(--gray-800);
+    margin: 0;
+  }
+
+  .section-content {
+    padding: 1.5rem;
+  }
+
+  .info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+  }
+
+  .info-item {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .info-label {
+    font-size: var(--font-size-sm);
+    color: var(--gray-600);
+    margin-bottom: 0.25rem;
+    font-weight: 500;
+  }
+
+  .info-value {
+    color: var(--gray-900);
+    font-weight: 500;
+  }
+
+  .profile-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 2rem;
+    flex-wrap: wrap;
+  }
+
+  .action-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: var(--border-radius);
+    text-decoration: none;
+    font-weight: 500;
+    transition: var(--transition);
+    cursor: pointer;
+  }
+
+  .action-btn-primary {
+    background: var(--primary-color);
+    color: var(--white);
+  }
+
+  .action-btn-primary:hover {
+    background: var(--primary-dark);
+    color: var(--white);
+  }
+
+  .action-btn-outline {
+    background: transparent;
+    color: var(--primary-color);
+    border: 1px solid var(--primary-color);
+  }
+
+  .action-btn-outline:hover {
+    background: var(--primary-color);
+    color: var(--white);
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 2rem;
+    color: var(--gray-600);
+  }
+
+  .empty-state i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+  }
+
+  @media (max-width: 768px) {
+    .profile-container {
+      margin: 1rem;
+    }
+
+    .profile-header {
+      padding: 1.5rem;
+    }
+
+    .profile-stats {
+      grid-template-columns: 1fr;
+    }
+
+    .info-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .profile-actions {
+      flex-direction: column;
+    }
+  }
+</style>
+{% endblock %} {% block content %}
+<!-- Breadcrumb -->
+{% include 'components/breadcrumb.html' %}
+
+<div class="container">
+  <div class="profile-container">
+    <!-- Profile Header -->
+    <div class="profile-header">
+      <div class="profile-avatar">
+        <i class="fas fa-user" aria-hidden="true"></i>
+      </div>
+      <div class="profile-name">
+        {{ user.get_full_name|default:user.email }}
+      </div>
+      <div class="profile-email">{{ user.email }}</div>
+    </div>
+
+    <!-- Profile Statistics -->
+    <div class="profile-stats">
+      <div class="stat-card">
+        <div class="stat-number">{{ stats.total_projects }}</div>
+        <div class="stat-label">Projects Created</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">{{ stats.active_projects }}</div>
+        <div class="stat-label">Active Projects</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">${{ stats.total_raised|floatformat:0 }}</div>
+        <div class="stat-label">Total Raised</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">{{ stats.total_contributions }}</div>
+        <div class="stat-label">Contributions Made</div>
+      </div>
+    </div>
+
+    <!-- Profile Sections -->
+    <div class="profile-sections">
+      <!-- Personal Information -->
+      <div class="profile-section">
+        <div class="section-header">
+          <h3 class="section-title">
+            <i class="fas fa-user-circle" aria-hidden="true"></i>
+            Personal Information
+          </h3>
+          <a
+            href="{% url 'accounts:profile_update' %}"
+            class="btn btn-sm btn-outline-primary"
+          >
+            <i class="fas fa-edit" aria-hidden="true"></i>
+            Edit
+          </a>
+        </div>
+        <div class="section-content">
+          <div class="info-grid">
+            <div class="info-item">
+              <span class="info-label">First Name</span>
+              <span class="info-value"
+                >{{ user.first_name|default:"Not provided" }}</span
+              >
+            </div>
+            <div class="info-item">
+              <span class="info-label">Last Name</span>
+              <span class="info-value"
+                >{{ user.last_name|default:"Not provided" }}</span
+              >
+            </div>
+            <div class="info-item">
+              <span class="info-label">Email Address</span>
+              <span class="info-value">{{ user.email }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Phone Number</span>
+              <span class="info-value"
+                >{{ user.phone|default:"Not provided" }}</span
+              >
+            </div>
+            <div class="info-item">
+              <span class="info-label">Member Since</span>
+              <span class="info-value"
+                >{{ user.date_joined|date:"F d, Y" }}</span
+              >
+            </div>
+            <div class="info-item">
+              <span class="info-label">Last Login</span>
+              <span class="info-value"
+                >{{ user.last_login|date:"F d, Y g:i A"|default:"Never" }}</span
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Projects -->
+      <div class="profile-section">
+        <div class="section-header">
+          <h3 class="section-title">
+            <i class="fas fa-project-diagram" aria-hidden="true"></i>
+            Recent Projects
+          </h3>
+          <a href="{% url 'projects:create' %}" class="btn btn-sm btn-primary">
+            <i class="fas fa-plus" aria-hidden="true"></i>
+            New Project
+          </a>
+        </div>
+        <div class="section-content">
+          {% if recent_projects %}
+          <div class="project-list">
+            {% for project in recent_projects %}
+            <div class="project-item">
+              <h4>
+                <a href="{% url 'projects:detail' project.pk %}"
+                  >{{ project.title }}</a
+                >
+              </h4>
+              <p class="project-meta">
+                Created {{ project.created_at|date:"M d, Y" }} • Target: ${{
+                project.total_target|floatformat:0 }} • Raised: ${{
+                project.current_amount|floatformat:0 }}
+              </p>
+            </div>
+            {% endfor %}
+          </div>
+          <div class="text-center">
+            <a
+              href="{% url 'projects:user_projects' %}"
+              class="btn btn-outline-primary"
+            >
+              View All Projects
+            </a>
+          </div>
+          {% else %}
+          <div class="empty-state">
+            <i class="fas fa-project-diagram" aria-hidden="true"></i>
+            <h4>No Projects Yet</h4>
+            <p>
+              You haven't created any projects. Start your first crowdfunding
+              campaign!
+            </p>
+            <a href="{% url 'projects:create' %}" class="btn btn-primary">
+              <i class="fas fa-plus" aria-hidden="true"></i>
+              Create Your First Project
+            </a>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Recent Contributions -->
+      <div class="profile-section">
+        <div class="section-header">
+          <h3 class="section-title">
+            <i class="fas fa-hand-holding-heart" aria-hidden="true"></i>
+            Recent Contributions
+          </h3>
+        </div>
+        <div class="section-content">
+          {% if recent_contributions %}
+          <div class="contribution-list">
+            {% for contribution in recent_contributions %}
+            <div class="contribution-item">
+              <h4>
+                <a href="{% url 'projects:detail' contribution.project.pk %}"
+                  >{{ contribution.project.title }}</a
+                >
+              </h4>
+              <p class="contribution-meta">
+                ${{ contribution.donation_amount|floatformat:0 }} contributed on
+                {{ contribution.donation_date|date:"M d, Y" }}
+              </p>
+            </div>
+            {% endfor %}
+          </div>
+          {% else %}
+          <div class="empty-state">
+            <i class="fas fa-hand-holding-heart" aria-hidden="true"></i>
+            <h4>No Contributions Yet</h4>
+            <p>
+              You haven't contributed to any projects yet. Explore projects and
+              support great ideas!
+            </p>
+            <a href="{% url 'projects:list' %}" class="btn btn-primary">
+              <i class="fas fa-search" aria-hidden="true"></i>
+              Explore Projects
+            </a>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Profile Actions -->
+    <div class="profile-actions">
+      <a
+        href="{% url 'accounts:profile_update' %}"
+        class="action-btn action-btn-primary"
+      >
+        <i class="fas fa-edit" aria-hidden="true"></i>
+        Edit Profile
+      </a>
+      <a
+        href="{% url 'projects:create' %}"
+        class="action-btn action-btn-outline"
+      >
+        <i class="fas fa-plus" aria-hidden="true"></i>
+        Create Project
+      </a>
+      <a
+        href="{% url 'projects:user_projects' %}"
+        class="action-btn action-btn-outline"
+      >
+        <i class="fas fa-list" aria-hidden="true"></i>
+        My Projects
+      </a>
+    </div>
+  </div>
+</div>
+{% endblock %}

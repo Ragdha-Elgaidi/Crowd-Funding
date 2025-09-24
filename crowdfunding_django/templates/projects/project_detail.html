@@ -1,0 +1,673 @@
+{% extends 'base.html' %} {% load static %} {% block extra_css %}
+<style>
+  .project-hero {
+    background: linear-gradient(
+      135deg,
+      var(--primary-color),
+      var(--secondary-color)
+    );
+    color: var(--white);
+    padding: 3rem 0;
+    margin-bottom: 2rem;
+  }
+
+  .project-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin: 0 0 1rem;
+  }
+
+  .project-owner {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    opacity: 0.9;
+    font-size: 1.1rem;
+  }
+
+  .project-content {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 3rem;
+    margin-bottom: 3rem;
+  }
+
+  .project-main {
+    background: var(--white);
+    border-radius: var(--border-radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .project-image {
+    height: 400px;
+    background: linear-gradient(
+      45deg,
+      var(--primary-color),
+      var(--secondary-color)
+    );
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--white);
+    font-size: 4rem;
+    position: relative;
+  }
+
+  .project-status-badge {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    padding: 0.5rem 1rem;
+    border-radius: var(--border-radius);
+    font-weight: 600;
+    font-size: var(--font-size-sm);
+  }
+
+  .status-active {
+    background: var(--success-color);
+  }
+
+  .status-completed {
+    background: var(--info-color);
+  }
+
+  .status-expired {
+    background: var(--danger-color);
+  }
+
+  .project-details {
+    padding: 2rem;
+  }
+
+  .project-description {
+    color: var(--gray-700);
+    line-height: 1.6;
+    font-size: 1.1rem;
+  }
+
+  .project-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+
+  .funding-card {
+    background: var(--white);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--border-radius-lg);
+    padding: 2rem;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .funding-stats {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+
+  .funding-amount {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin: 0;
+  }
+
+  .funding-target {
+    color: var(--gray-600);
+    margin: 0.5rem 0;
+  }
+
+  .funding-percentage {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--success-color);
+  }
+
+  .progress-bar {
+    width: 100%;
+    height: 12px;
+    background: var(--gray-200);
+    border-radius: 6px;
+    overflow: hidden;
+    margin: 1.5rem 0;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(
+      90deg,
+      var(--primary-color),
+      var(--secondary-color)
+    );
+    transition: width 0.3s ease;
+  }
+
+  .funding-meta {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .meta-item {
+    text-align: center;
+    padding: 1rem;
+    background: var(--gray-50);
+    border-radius: var(--border-radius);
+  }
+
+  .meta-number {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--primary-color);
+    margin: 0;
+  }
+
+  .meta-label {
+    color: var(--gray-600);
+    font-size: var(--font-size-sm);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .contribute-section {
+    border-top: 1px solid var(--gray-200);
+    padding-top: 2rem;
+  }
+
+  .contribute-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .amount-input {
+    padding: 1rem;
+    border: 2px solid var(--gray-300);
+    border-radius: var(--border-radius);
+    font-size: 1.1rem;
+    font-weight: 600;
+    text-align: center;
+  }
+
+  .amount-input:focus {
+    border-color: var(--primary-color);
+    outline: none;
+  }
+
+  .quick-amounts {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .quick-amount {
+    background: var(--gray-100);
+    border: 1px solid var(--gray-300);
+    padding: 0.75rem;
+    border-radius: var(--border-radius);
+    text-align: center;
+    cursor: pointer;
+    transition: var(--transition);
+  }
+
+  .quick-amount:hover {
+    background: var(--primary-color);
+    color: var(--white);
+    border-color: var(--primary-color);
+  }
+
+  .btn-contribute {
+    background: var(--primary-color);
+    color: var(--white);
+    border: none;
+    padding: 1rem 2rem;
+    border-radius: var(--border-radius);
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+  }
+
+  .btn-contribute:hover {
+    background: var(--primary-dark);
+  }
+
+  .btn-contribute:disabled {
+    background: var(--gray-400);
+    cursor: not-allowed;
+  }
+
+  .project-actions {
+    background: var(--white);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--border-radius-lg);
+    padding: 1.5rem;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .action-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .btn-action {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: var(--border-radius);
+    text-decoration: none;
+    font-weight: 500;
+    transition: var(--transition);
+  }
+
+  .btn-edit {
+    background: var(--warning-color);
+    color: var(--white);
+  }
+
+  .btn-edit:hover {
+    background: #e0a800;
+    color: var(--white);
+  }
+
+  .btn-delete {
+    background: var(--danger-color);
+    color: var(--white);
+  }
+
+  .btn-delete:hover {
+    background: #c82333;
+    color: var(--white);
+  }
+
+  .contributions-section {
+    background: var(--white);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--border-radius-lg);
+    margin-top: 3rem;
+  }
+
+  .section-header {
+    background: var(--gray-50);
+    border-bottom: 1px solid var(--gray-200);
+    padding: 1.5rem;
+  }
+
+  .section-title {
+    margin: 0;
+    color: var(--gray-800);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .contributions-list {
+    padding: 1.5rem;
+  }
+
+  .contribution-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    border-bottom: 1px solid var(--gray-100);
+  }
+
+  .contribution-item:last-child {
+    border-bottom: none;
+  }
+
+  .contributor-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .contributor-avatar {
+    width: 40px;
+    height: 40px;
+    background: var(--primary-color);
+    color: var(--white);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+  }
+
+  .contributor-details h4 {
+    margin: 0;
+    color: var(--gray-800);
+  }
+
+  .contributor-details p {
+    margin: 0;
+    color: var(--gray-600);
+    font-size: var(--font-size-sm);
+  }
+
+  .contribution-amount {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--primary-color);
+  }
+
+  @media (max-width: 768px) {
+    .project-hero {
+      padding: 2rem 0;
+    }
+
+    .project-title {
+      font-size: 2rem;
+    }
+
+    .project-content {
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
+
+    .project-image {
+      height: 300px;
+    }
+
+    .funding-meta {
+      grid-template-columns: 1fr;
+    }
+
+    .quick-amounts {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+{% endblock %} {% block content %}
+<!-- Project Hero -->
+<div class="project-hero">
+  <div class="container">
+    <h1 class="project-title">{{ project.title }}</h1>
+    <div class="project-owner">
+      <i class="fas fa-user-circle"></i>
+      by
+      <strong
+        >{{ project.owner.get_full_name|default:project.owner.email }}</strong
+      >
+    </div>
+  </div>
+</div>
+
+<!-- Breadcrumb -->
+{% include 'components/breadcrumb.html' %}
+
+<div class="container">
+  <div class="project-content">
+    <!-- Main Content -->
+    <div class="project-main">
+      <!-- Project Image -->
+      <div class="project-image">
+        <i class="fas fa-lightbulb"></i>
+        <span
+          class="project-status-badge status-{{ project.get_status_display|lower }}"
+        >
+          {{ project.get_status_display }}
+        </span>
+      </div>
+
+      <!-- Project Details -->
+      <div class="project-details">
+        <div class="project-description">{{ project.details|linebreaks }}</div>
+
+        <!-- Project Metadata -->
+        <div
+          class="project-meta"
+          style="
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--gray-200);
+          "
+        >
+          <div
+            style="
+              display: grid;
+              grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+              gap: 1rem;
+            "
+          >
+            <div>
+              <strong>Start Date:</strong><br />
+              {{ project.start_date|date:"F d, Y" }}
+            </div>
+            <div>
+              <strong>End Date:</strong><br />
+              {{ project.end_date|date:"F d, Y" }}
+            </div>
+            <div>
+              <strong>Created:</strong><br />
+              {{ project.created_at|date:"F d, Y" }}
+            </div>
+            <div>
+              <strong>Category:</strong><br />
+              {{ project.category|default:"General" }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="project-sidebar">
+      <!-- Funding Card -->
+      <div class="funding-card">
+        <div class="funding-stats">
+          <h2 class="funding-amount">
+            ${{ project.current_amount|floatformat:0 }}
+          </h2>
+          <p class="funding-target">
+            of ${{ project.total_target|floatformat:0 }} goal
+          </p>
+          <p class="funding-percentage">
+            {{ project.funding_percentage|floatformat:1 }}% funded
+          </p>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="progress-bar">
+          <div
+            class="progress-fill"
+            style="width: {{ project.funding_percentage|floatformat:0 }}%"
+          ></div>
+        </div>
+
+        <!-- Funding Meta -->
+        <div class="funding-meta">
+          <div class="meta-item">
+            <h3 class="meta-number">{{ project.total_contributions }}</h3>
+            <p class="meta-label">Backers</p>
+          </div>
+          <div class="meta-item">
+            <h3 class="meta-number">{{ project.days_left }}</h3>
+            <p class="meta-label">Days Left</p>
+          </div>
+        </div>
+
+        <!-- Contribute Section -->
+        {% if project.is_active and project.owner != user %}
+        <div class="contribute-section">
+          <form
+            method="post"
+            action="{% url 'projects:contribute' project.pk %}"
+            class="contribute-form"
+          >
+            {% csrf_token %}
+
+            <!-- Quick Amount Buttons -->
+            <div class="quick-amounts">
+              <button
+                type="button"
+                class="quick-amount"
+                onclick="setAmount(25)"
+              >
+                $25
+              </button>
+              <button
+                type="button"
+                class="quick-amount"
+                onclick="setAmount(50)"
+              >
+                $50
+              </button>
+              <button
+                type="button"
+                class="quick-amount"
+                onclick="setAmount(100)"
+              >
+                $100
+              </button>
+            </div>
+
+            <!-- Amount Input -->
+            <input
+              type="number"
+              name="amount"
+              class="amount-input"
+              placeholder="Enter amount ($)"
+              min="1"
+              required
+            />
+
+            <!-- Contribute Button -->
+            <button type="submit" class="btn-contribute">
+              <i class="fas fa-heart"></i>
+              Back this project
+            </button>
+          </form>
+        </div>
+        {% elif project.owner == user %}
+        <div class="contribute-section">
+          <p
+            style="
+              text-align: center;
+              color: var(--gray-600);
+              margin-bottom: 1rem;
+            "
+          >
+            This is your project
+          </p>
+        </div>
+        {% else %}
+        <div class="contribute-section">
+          <p
+            style="
+              text-align: center;
+              color: var(--gray-600);
+              margin-bottom: 1rem;
+            "
+          >
+            {% if not project.is_active %} This campaign has ended {% else %}
+            <a href="{% url 'accounts:login' %}">Login</a> to back this project
+            {% endif %}
+          </p>
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- Project Actions (for owner) -->
+      {% if project.owner == user %}
+      <div class="project-actions">
+        <h3 style="margin: 0 0 1rem; color: var(--gray-800)">Manage Project</h3>
+        <div class="action-buttons">
+          <a
+            href="{% url 'projects:edit' project.pk %}"
+            class="btn-action btn-edit"
+          >
+            <i class="fas fa-edit"></i>
+            Edit Project
+          </a>
+          <a
+            href="{% url 'projects:delete' project.pk %}"
+            class="btn-action btn-delete"
+            onclick="return confirm('Are you sure you want to delete this project?')"
+          >
+            <i class="fas fa-trash"></i>
+            Delete Project
+          </a>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Recent Contributions -->
+  {% if contributions %}
+  <div class="contributions-section">
+    <div class="section-header">
+      <h3 class="section-title">
+        <i class="fas fa-heart"></i>
+        Recent Contributions
+      </h3>
+    </div>
+    <div class="contributions-list">
+      {% for contribution in contributions %}
+      <div class="contribution-item">
+        <div class="contributor-info">
+          <div class="contributor-avatar">
+            {{
+            contribution.contributor.first_name.0|default:contribution.contributor.email.0|upper
+            }}
+          </div>
+          <div class="contributor-details">
+            <h4>
+              {{ contribution.contributor.get_full_name|default:"Anonymous" }}
+            </h4>
+            <p>{{ contribution.donation_date|date:"F d, Y g:i A" }}</p>
+          </div>
+        </div>
+        <div class="contribution-amount">
+          ${{ contribution.donation_amount|floatformat:0 }}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %} {% block extra_js %}
+<script>
+  function setAmount(amount) {
+    const amountInput = document.querySelector(".amount-input");
+    if (amountInput) {
+      amountInput.value = amount;
+      amountInput.focus();
+    }
+  }
+
+  // Form submission with loading state
+  document.addEventListener("DOMContentLoaded", function () {
+    const contributeForm = document.querySelector(".contribute-form");
+
+    if (contributeForm) {
+      contributeForm.addEventListener("submit", function (e) {
+        const submitBtn = this.querySelector(".btn-contribute");
+        const amountInput = this.querySelector(".amount-input");
+
+        if (amountInput && amountInput.value < 1) {
+          e.preventDefault();
+          showMessage("Please enter a valid amount", "warning");
+          return;
+        }
+
+        // Show loading state
+        if (submitBtn) {
+          submitBtn.disabled = true;
+          submitBtn.innerHTML =
+            '<i class="fas fa-spinner fa-spin"></i> Processing...';
+        }
+      });
+    }
+  });
+</script>
+{% endblock %}

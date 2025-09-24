@@ -1,0 +1,476 @@
+{% extends 'base.html' %} {% load static %} {% block extra_css %}
+<style>
+  .edit-project-container {
+    max-width: 800px;
+    margin: 2rem auto;
+    background: var(--white);
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+  }
+
+  .project-header {
+    background: linear-gradient(135deg, var(--warning-color), #e0a800);
+    color: var(--white);
+    padding: 2rem;
+    text-align: center;
+  }
+
+  .project-header h1 {
+    margin: 0 0 0.5rem;
+    font-size: 2rem;
+  }
+
+  .project-header p {
+    margin: 0;
+    opacity: 0.9;
+  }
+
+  .form-container {
+    padding: 2rem;
+  }
+
+  .current-project-info {
+    background: var(--gray-50);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .current-project-info h3 {
+    margin: 0 0 1rem;
+    color: var(--gray-800);
+  }
+
+  .project-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+  }
+
+  .stat-item {
+    text-align: center;
+    padding: 1rem;
+    background: var(--white);
+    border-radius: var(--border-radius);
+  }
+
+  .stat-number {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--primary-color);
+    margin: 0;
+  }
+
+  .stat-label {
+    color: var(--gray-600);
+    font-size: var(--font-size-sm);
+  }
+
+  .edit-warning {
+    background: var(--warning-light);
+    border: 1px solid var(--warning-color);
+    border-radius: var(--border-radius);
+    padding: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .edit-warning h4 {
+    margin: 0 0 0.5rem;
+    color: var(--warning-dark);
+  }
+
+  .edit-warning p {
+    margin: 0;
+    color: var(--warning-dark);
+    font-size: var(--font-size-sm);
+  }
+
+  /* Reuse styles from create template */
+  .form-section {
+    margin-bottom: 2.5rem;
+  }
+
+  .section-title {
+    color: var(--gray-800);
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--gray-200);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .form-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--gray-200);
+  }
+
+  .btn-group {
+    display: flex;
+    gap: 1rem;
+  }
+
+  .cancel-link {
+    color: var(--gray-600);
+    text-decoration: none;
+    padding: 0.75rem 1.5rem;
+    border: 1px solid var(--gray-300);
+    border-radius: var(--border-radius);
+    transition: var(--transition);
+  }
+
+  .cancel-link:hover {
+    background: var(--gray-50);
+    color: var(--gray-800);
+    text-decoration: none;
+  }
+
+  @media (max-width: 768px) {
+    .edit-project-container {
+      margin: 1rem;
+    }
+
+    .form-container {
+      padding: 1.5rem;
+    }
+
+    .project-stats {
+      grid-template-columns: 1fr;
+    }
+
+    .form-actions {
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .btn-group {
+      width: 100%;
+      flex-direction: column;
+    }
+  }
+</style>
+{% endblock %} {% block content %}
+<!-- Breadcrumb -->
+{% include 'components/breadcrumb.html' %}
+
+<div class="container">
+  <div class="edit-project-container">
+    <!-- Header -->
+    <div class="project-header">
+      <h1><i class="fas fa-edit"></i> Edit Project</h1>
+      <p>Update your project details and settings</p>
+    </div>
+
+    <!-- Form -->
+    <div class="form-container">
+      <!-- Current Project Info -->
+      <div class="current-project-info">
+        <h3><i class="fas fa-info-circle"></i> Current Project Status</h3>
+        <div class="project-stats">
+          <div class="stat-item">
+            <h4 class="stat-number">
+              ${{ project.current_amount|floatformat:0 }}
+            </h4>
+            <p class="stat-label">Raised</p>
+          </div>
+          <div class="stat-item">
+            <h4 class="stat-number">{{ project.total_contributions }}</h4>
+            <p class="stat-label">Backers</p>
+          </div>
+          <div class="stat-item">
+            <h4 class="stat-number">{{ project.days_left }}</h4>
+            <p class="stat-label">Days Left</p>
+          </div>
+          <div class="stat-item">
+            <h4 class="stat-number">
+              {{ project.funding_percentage|floatformat:1 }}%
+            </h4>
+            <p class="stat-label">Funded</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Edit Warning -->
+      <div class="edit-warning">
+        <h4><i class="fas fa-exclamation-triangle"></i> Important Notes</h4>
+        <p>
+          Some changes may affect existing backers. Please consider the impact
+          of your changes carefully. Major changes should be communicated to
+          your supporters.
+        </p>
+      </div>
+
+      <!-- Validation Summary -->
+      {% if form.errors %}
+      <div class="validation-summary">
+        <h4>
+          <i class="fas fa-exclamation-triangle"></i> Please fix the following
+          errors:
+        </h4>
+        <ul>
+          {% for field, errors in form.errors.items %} {% for error in errors %}
+          <li>{{ field|title }}: {{ error }}</li>
+          {% endfor %} {% endfor %}
+        </ul>
+      </div>
+      {% endif %}
+
+      <form
+        method="post"
+        class="form ajax-form"
+        id="edit-project-form"
+        data-ajax-form="true"
+      >
+        {% csrf_token %}
+
+        <!-- Project Information Section -->
+        <div class="form-section">
+          <h3 class="section-title">
+            <i class="fas fa-info-circle" aria-hidden="true"></i>
+            Project Information
+          </h3>
+
+          <!-- Title -->
+          <div class="form-group">
+            <label for="{{ form.title.id_for_label }}" class="form-label">
+              Project Title
+              <span class="required-indicator">*</span>
+            </label>
+            {{ form.title }} {% if form.title.errors %}
+            <div class="invalid-feedback">
+              {% for error in form.title.errors %}
+              <div>{{ error }}</div>
+              {% endfor %}
+            </div>
+            {% endif %}
+            <div class="form-text">
+              Choose a clear, compelling title that describes your project
+            </div>
+          </div>
+
+          <!-- Description -->
+          <div class="form-group">
+            <label for="{{ form.details.id_for_label }}" class="form-label">
+              Project Description
+              <span class="required-indicator">*</span>
+            </label>
+            {{ form.details }} {% if form.details.errors %}
+            <div class="invalid-feedback">
+              {% for error in form.details.errors %}
+              <div>{{ error }}</div>
+              {% endfor %}
+            </div>
+            {% endif %}
+            <div class="form-text">
+              Update your project description. Be transparent about any changes.
+            </div>
+          </div>
+        </div>
+
+        <!-- Funding Section -->
+        <div class="form-section">
+          <h3 class="section-title">
+            <i class="fas fa-dollar-sign" aria-hidden="true"></i>
+            Funding Goal
+          </h3>
+
+          <!-- Target Amount -->
+          <div class="form-group">
+            <label
+              for="{{ form.total_target.id_for_label }}"
+              class="form-label"
+            >
+              Funding Target
+              <span class="required-indicator">*</span>
+            </label>
+            <div class="target-input-group">
+              <span class="currency-symbol">$</span>
+              {{ form.total_target }}
+            </div>
+            {% if form.total_target.errors %}
+            <div class="invalid-feedback">
+              {% for error in form.total_target.errors %}
+              <div>{{ error }}</div>
+              {% endfor %}
+            </div>
+            {% endif %}
+            <div class="form-text">
+              <strong>Warning:</strong> Reducing the target below the current
+              funding amount ({{ project.current_amount }}) is not recommended.
+            </div>
+          </div>
+        </div>
+
+        <!-- Timeline Section -->
+        <div class="form-section">
+          <h3 class="section-title">
+            <i class="fas fa-calendar-alt" aria-hidden="true"></i>
+            Campaign Timeline
+          </h3>
+
+          <div class="date-row">
+            <!-- Start Date -->
+            <div class="form-group">
+              <label
+                for="{{ form.start_date.id_for_label }}"
+                class="form-label"
+              >
+                Start Date
+                <span class="required-indicator">*</span>
+              </label>
+              {{ form.start_date }} {% if form.start_date.errors %}
+              <div class="invalid-feedback">
+                {% for error in form.start_date.errors %}
+                <div>{{ error }}</div>
+                {% endfor %}
+              </div>
+              {% endif %}
+              <div class="form-text">
+                {% if project.has_started %}
+                <strong>Note:</strong> Project has already started. Start date
+                cannot be changed. {% endif %}
+              </div>
+            </div>
+
+            <!-- End Date -->
+            <div class="form-group">
+              <label for="{{ form.end_date.id_for_label }}" class="form-label">
+                End Date
+                <span class="required-indicator">*</span>
+              </label>
+              {{ form.end_date }} {% if form.end_date.errors %}
+              <div class="invalid-feedback">
+                {% for error in form.end_date.errors %}
+                <div>{{ error }}</div>
+                {% endfor %}
+              </div>
+              {% endif %}
+              <div class="form-text">
+                You can extend the campaign end date, but consider notifying
+                your backers.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="form-actions">
+          <div class="btn-group">
+            <a
+              href="{% url 'projects:detail' project.pk %}"
+              class="cancel-link"
+            >
+              <i class="fas fa-times" aria-hidden="true"></i>
+              Cancel
+            </a>
+            <button type="submit" class="btn btn-warning">
+              <i
+                class="fas fa-spinner fa-spin"
+                aria-hidden="true"
+                style="display: none"
+              ></i>
+              <span class="btn-text">
+                <i class="fas fa-save" aria-hidden="true"></i>
+                Update Project
+              </span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Non-field errors -->
+        {% if form.non_field_errors %}
+        <div class="alert alert-danger" role="alert">
+          {% for error in form.non_field_errors %}
+          <div>{{ error }}</div>
+          {% endfor %}
+        </div>
+        {% endif %}
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Loading Overlay -->
+{% include 'components/loading.html' with id='edit-project-loading' hidden=True
+%} {% endblock %} {% block extra_js %}
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+      const form = document.getElementById('edit-project-form');
+      const loadingOverlay = document.getElementById('edit-project-loading');
+
+      // Form submission
+      if (form) {
+          form.addEventListener('submit', function(e) {
+              e.preventDefault();
+
+              // Show confirmation for significant changes
+              const targetInput = form.querySelector('input[name="total_target"]');
+              const currentAmount = {{ project.current_amount|default:0 }};
+
+              if (targetInput && parseFloat(targetInput.value) < currentAmount) {
+                  if (!confirm('Warning: The new target is less than the amount already raised. This may confuse your backers. Are you sure you want to continue?')) {
+                      return;
+                  }
+              }
+
+              // Show loading
+              if (loadingOverlay) {
+                  showLoading({
+                      text: 'Updating your project...',
+                      spinner: 'default'
+                  });
+              }
+
+              // Get form data
+              const formData = new FormData(form);
+
+              // Make AJAX request
+              fetch(form.action || window.location.pathname, {
+                  method: 'POST',
+                  body: formData,
+                  headers: {
+                      'X-Requested-With': 'XMLHttpRequest',
+                      'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+                  }
+              })
+              .then(response => response.json())
+              .then(data => {
+                  hideLoading();
+
+                  if (data.success) {
+                      // Show success message
+                      showMessage(data.message || 'Project updated successfully!', 'success');
+
+                      // Redirect after delay
+                      setTimeout(function() {
+                          window.location.href = data.redirect_url || "{% url 'projects:detail' project.pk %}";
+                      }, 1500);
+                  } else {
+                      // Show error message
+                      showMessage(data.message || 'Failed to update project. Please try again.', 'error');
+
+                      // Focus first error field
+                      const firstErrorField = form.querySelector('.is-invalid');
+                      if (firstErrorField) {
+                          firstErrorField.focus();
+                      }
+                  }
+              })
+              .catch(error => {
+                  hideLoading();
+                  console.error('Project update error:', error);
+                  showMessage('An error occurred. Please try again.', 'error');
+              });
+          });
+      }
+  });
+</script>
+{% endblock %}

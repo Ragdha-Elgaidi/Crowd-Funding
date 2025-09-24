@@ -1,0 +1,392 @@
+{% extends 'base.html' %} {% load static %} {% block extra_css %}
+<style>
+  .delete-project-container {
+    max-width: 600px;
+    margin: 3rem auto;
+    background: var(--white);
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+  }
+
+  .danger-header {
+    background: linear-gradient(135deg, var(--danger-color), #c82333);
+    color: var(--white);
+    padding: 2rem;
+    text-align: center;
+  }
+
+  .danger-header h1 {
+    margin: 0 0 0.5rem;
+    font-size: 2rem;
+  }
+
+  .danger-header p {
+    margin: 0;
+    opacity: 0.9;
+  }
+
+  .delete-content {
+    padding: 2rem;
+  }
+
+  .project-info {
+    background: var(--gray-50);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .project-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--gray-900);
+    margin: 0 0 1rem;
+  }
+
+  .project-stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+
+  .stat-item {
+    text-align: center;
+    padding: 1rem;
+    background: var(--white);
+    border-radius: var(--border-radius);
+  }
+
+  .stat-number {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--primary-color);
+    margin: 0;
+  }
+
+  .stat-label {
+    color: var(--gray-600);
+    font-size: var(--font-size-sm);
+  }
+
+  .warning-section {
+    background: var(--danger-light);
+    border: 2px solid var(--danger-color);
+    border-radius: var(--border-radius);
+    padding: 2rem;
+    margin-bottom: 2rem;
+  }
+
+  .warning-title {
+    color: var(--danger-color);
+    font-weight: 600;
+    margin: 0 0 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .warning-list {
+    margin: 0;
+    padding-left: 1.5rem;
+    color: var(--danger-dark);
+  }
+
+  .warning-list li {
+    margin-bottom: 0.5rem;
+  }
+
+  .confirmation-section {
+    background: var(--gray-50);
+    border: 1px solid var(--gray-300);
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .confirmation-checkbox {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+  }
+
+  .confirmation-checkbox input[type="checkbox"] {
+    margin-top: 0.25rem;
+  }
+
+  .confirmation-text {
+    color: var(--gray-700);
+    font-size: var(--font-size-sm);
+    line-height: 1.5;
+  }
+
+  .type-confirmation {
+    margin-top: 1.5rem;
+  }
+
+  .type-confirmation label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: var(--gray-700);
+    font-weight: 500;
+  }
+
+  .type-confirmation input {
+    width: 100%;
+    padding: 0.75rem;
+    border: 2px solid var(--danger-color);
+    border-radius: var(--border-radius);
+    font-size: 1rem;
+  }
+
+  .type-confirmation input:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.2);
+  }
+
+  .delete-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .btn-cancel {
+    color: var(--gray-600);
+    text-decoration: none;
+    padding: 0.75rem 1.5rem;
+    border: 1px solid var(--gray-300);
+    border-radius: var(--border-radius);
+    transition: var(--transition);
+  }
+
+  .btn-cancel:hover {
+    background: var(--gray-50);
+    color: var(--gray-800);
+    text-decoration: none;
+  }
+
+  .btn-delete {
+    background: var(--danger-color);
+    color: var(--white);
+    border: none;
+    padding: 0.75rem 2rem;
+    border-radius: var(--border-radius);
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    opacity: 0.5;
+    pointer-events: none;
+  }
+
+  .btn-delete.enabled {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .btn-delete.enabled:hover {
+    background: #c82333;
+  }
+
+  @media (max-width: 768px) {
+    .delete-project-container {
+      margin: 1rem;
+    }
+
+    .delete-content {
+      padding: 1.5rem;
+    }
+
+    .project-stats {
+      grid-template-columns: 1fr;
+    }
+
+    .delete-actions {
+      flex-direction: column-reverse;
+      gap: 1rem;
+    }
+
+    .btn-cancel,
+    .btn-delete {
+      width: 100%;
+      text-align: center;
+    }
+  }
+</style>
+{% endblock %} {% block content %}
+<!-- Breadcrumb -->
+{% include 'components/breadcrumb.html' %}
+
+<div class="container">
+  <div class="delete-project-container">
+    <!-- Danger Header -->
+    <div class="danger-header">
+      <h1><i class="fas fa-exclamation-triangle"></i> Delete Project</h1>
+      <p>This action cannot be undone</p>
+    </div>
+
+    <!-- Delete Content -->
+    <div class="delete-content">
+      <!-- Project Info -->
+      <div class="project-info">
+        <h2 class="project-title">{{ project.title }}</h2>
+        <div class="project-stats">
+          <div class="stat-item">
+            <h3 class="stat-number">
+              ${{ project.current_amount|floatformat:0 }}
+            </h3>
+            <p class="stat-label">Raised</p>
+          </div>
+          <div class="stat-item">
+            <h3 class="stat-number">{{ project.total_contributions }}</h3>
+            <p class="stat-label">Backers</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Warning Section -->
+      <div class="warning-section">
+        <h3 class="warning-title">
+          <i class="fas fa-exclamation-triangle"></i>
+          Warning: This action is permanent
+        </h3>
+        <ul class="warning-list">
+          <li><strong>All project data will be permanently deleted</strong></li>
+          <li>Contribution history will be removed</li>
+          <li>Backers will lose access to project updates</li>
+          <li>This action cannot be reversed</li>
+          {% if project.current_amount > 0 %}
+          <li>
+            <strong
+              >This project has raised ${{ project.current_amount|floatformat:0
+              }} from {{ project.total_contributions }} backer{{
+              project.total_contributions|pluralize }}</strong
+            >
+          </li>
+          {% endif %}
+        </ul>
+      </div>
+
+      <!-- Confirmation Form -->
+      <form method="post" id="delete-form">
+        {% csrf_token %}
+
+        <div class="confirmation-section">
+          <!-- Checkboxes -->
+          <div class="confirmation-checkbox">
+            <input type="checkbox" id="understand-permanent" required />
+            <label for="understand-permanent" class="confirmation-text">
+              I understand that this action is permanent and cannot be undone.
+            </label>
+          </div>
+
+          <div class="confirmation-checkbox">
+            <input type="checkbox" id="understand-backers" required />
+            <label for="understand-backers" class="confirmation-text">
+              I understand that this will affect all project backers and remove
+              their access to the project.
+            </label>
+          </div>
+
+          {% if project.current_amount > 0 %}
+          <div class="confirmation-checkbox">
+            <input type="checkbox" id="understand-funding" required />
+            <label for="understand-funding" class="confirmation-text">
+              I understand that this project has active funding and deleting it
+              may have legal implications.
+            </label>
+          </div>
+          {% endif %}
+
+          <!-- Type Confirmation -->
+          <div class="type-confirmation">
+            <label for="project-title-confirm">
+              To confirm deletion, type the project title:
+              <strong>"{{ project.title }}"</strong>
+            </label>
+            <input
+              type="text"
+              id="project-title-confirm"
+              name="title_confirmation"
+              placeholder="Type the exact project title"
+              required
+            />
+          </div>
+        </div>
+
+        <!-- Delete Actions -->
+        <div class="delete-actions">
+          <a href="{% url 'projects:detail' project.pk %}" class="btn-cancel">
+            <i class="fas fa-arrow-left"></i>
+            Cancel
+          </a>
+
+          <button type="submit" class="btn-delete" id="delete-button">
+            <i class="fas fa-trash"></i>
+            Delete Project Forever
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %} {% block extra_js %}
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const form = document.getElementById("delete-form");
+    const deleteButton = document.getElementById("delete-button");
+    const titleConfirm = document.getElementById("project-title-confirm");
+    const checkboxes = form.querySelectorAll('input[type="checkbox"]');
+    const expectedTitle = "{{ project.title|escapejs }}";
+
+    function validateForm() {
+      // Check all checkboxes
+      const allChecked = Array.from(checkboxes).every((cb) => cb.checked);
+
+      // Check title confirmation
+      const titleMatches = titleConfirm.value.trim() === expectedTitle;
+
+      // Enable/disable delete button
+      if (allChecked && titleMatches) {
+        deleteButton.classList.add("enabled");
+      } else {
+        deleteButton.classList.remove("enabled");
+      }
+    }
+
+    // Add event listeners
+    checkboxes.forEach((checkbox) => {
+      checkbox.addEventListener("change", validateForm);
+    });
+
+    titleConfirm.addEventListener("input", validateForm);
+
+    // Form submission
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      // Final confirmation
+      const finalConfirm = confirm(
+        "Are you absolutely sure you want to delete this project?\n\n" +
+          "This action is permanent and cannot be undone.\n\n" +
+          "Click OK to proceed with deletion."
+      );
+
+      if (finalConfirm) {
+        // Show loading state
+        deleteButton.disabled = true;
+        deleteButton.innerHTML =
+          '<i class="fas fa-spinner fa-spin"></i> Deleting...';
+
+        // Submit form normally (non-AJAX for security)
+        form.submit();
+      }
+    });
+
+    // Initial validation
+    validateForm();
+  });
+</script>
+{% endblock %}
