@@ -1,63 +1,33 @@
-{% load static %}
 
-<!-- Messages container for Django messages framework -->
 {% if messages %}
-    <div class="messages-container" role="alert" aria-live="polite">
-        {% for message in messages %}
-            <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show" 
-                 role="alert"
-                 data-message-level="{{ message.level }}"
-                 data-message-tags="{{ message.tags }}">
-                
-                <!-- Message icon based on type -->
-                <i class="alert-icon 
-                    {% if message.tags == 'success' %}fas fa-check-circle
-                    {% elif message.tags == 'error' or message.tags == 'danger' %}fas fa-exclamation-triangle
-                    {% elif message.tags == 'warning' %}fas fa-exclamation-circle
-                    {% elif message.tags == 'info' %}fas fa-info-circle
-                    {% else %}fas fa-bell
-                    {% endif %}" 
-                   aria-hidden="true"></i>
-                
-                <!-- Message content -->
-                <div class="alert-content">
-                    {% if message.extra_tags %}
-                        <strong class="alert-title">
-                            {% if 'login' in message.extra_tags %}
-                                Login Required
-                            {% elif 'success' in message.extra_tags %}
-                                Success!
-                            {% elif 'error' in message.extra_tags %}
-                                Error
-                            {% elif 'warning' in message.extra_tags %}
-                                Warning
-                            {% else %}
-                                {{ message.extra_tags|title }}
-                            {% endif %}
-                        </strong>
-                    {% endif %}
-                    
-                    <div class="alert-message">
-                        {{ message|safe }}
-                    </div>
-                </div>
-                
-                <!-- Close button -->
-                <button type="button" 
-                        class="btn-close" 
-                        data-dismiss="alert" 
-                        aria-label="Close message"
-                        title="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-        {% endfor %}
-    </div>
+  <div class="messages-container" role="alert" aria-live="polite">
+    {% for message in messages %}
+      <div class="alert alert-{{ message.tags|default:'info' }}" role="alert">
+        <i class="alert-icon
+          {% if message.tags == 'success' %}fas fa-check-circle
+          {% elif message.tags == 'error' or message.tags == 'danger' %}fas fa-exclamation-triangle
+          {% elif message.tags == 'warning' %}fas fa-exclamation-circle
+          {% elif message.tags == 'info' %}fas fa-info-circle
+          {% else %}fas fa-bell
+          {% endif %}" aria-hidden="true"></i>
+        {% if message.extra_tags %}
+          <strong class="alert-title">
+            {% if 'login' in message.extra_tags %}Login Required
+            {% elif 'success' in message.extra_tags %}Success!
+            {% elif 'error' in message.extra_tags %}Error
+            {% elif 'warning' in message.extra_tags %}Warning
+            {% else %}{{ message.extra_tags|title }}
+            {% endif %}
+          </strong>
+        {% endif %}
+        <span class="alert-message">{{ message|safe }}</span>
+        <button type="button" class="btn-close" data-dismiss="alert" aria-label="Close" title="Close">&times;</button>
+      </div>
+    {% endfor %}
+  </div>
 {% endif %}
 
-<!-- Toast container for AJAX messages -->
-<div class="toast-container" id="toast-container" aria-live="polite" aria-atomic="true">
-    <!-- Toasts will be dynamically inserted here -->
+<div class="toast-container" id="toast-container" aria-live="polite" aria-atomic="true"></div>
 </div>
 
 <!-- Success message template (hidden, used by JavaScript) -->

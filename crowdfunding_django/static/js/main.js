@@ -95,6 +95,13 @@ document.addEventListener("DOMContentLoaded", function () {
   // Form validation
   const forms = document.querySelectorAll("form");
   forms.forEach(function (form) {
+    // Allow forms to opt out of client-side validation by setting
+    // data-client-validate="false" on the <form> element (default: true)
+    const clientValidate = form.getAttribute("data-client-validate");
+    if (clientValidate && clientValidate.toLowerCase() === "false") {
+      return; // skip adding validation handlers for this form
+    }
+
     form.addEventListener("submit", function (e) {
       if (!validateForm(form)) {
         e.preventDefault();
@@ -181,16 +188,19 @@ function performSearch(query) {
 }
 
 function searchByDate(date) {
-  fetch(`/ajax/search-by-date/?date=${date}`)
-    .then((response) => response.json())
-    .then((data) => {
-      if (data.results) {
-        displaySearchResults(data.results);
-      }
-    })
-    .catch((error) => {
-      console.error("Search error:", error);
-    });
+  // AJAX disabled in simplified build. Fall back to a full page load with the
+  // date as a query parameter so the server can handle filtering.
+  try {
+    const params = new URLSearchParams(window.location.search);
+    params.set("date", date);
+    // preserve other params
+    window.location.search = params.toString();
+  } catch (err) {
+    console.warn("searchByDate fallback failed, performing full reload");
+    window.location.href = `${
+      window.location.pathname
+    }?date=${encodeURIComponent(date)}`;
+  }
 }
 
 function displaySearchResults(results) {
@@ -352,45 +362,12 @@ function previewImage(file, input) {
 }
 
 function updateProjectStats(projectId) {
-  fetch(`/ajax/project-stats/${projectId}/`)
-    .then((response) => response.json())
-    .then((data) => {
-      // Update funding amount
-      const fundingElement = document.querySelector(
-        `[data-project-funding="${projectId}"]`
-      );
-      if (fundingElement && data.current_funding !== undefined) {
-        fundingElement.textContent = formatCurrency(data.current_funding);
-      }
-
-      // Update progress bar
-      const progressBar = document.querySelector(
-        `[data-project-progress="${projectId}"]`
-      );
-      if (progressBar && data.funding_percentage !== undefined) {
-        progressBar.style.width = `${Math.min(data.funding_percentage, 100)}%`;
-      }
-
-      // Update days left
-      const daysElement = document.querySelector(
-        `[data-project-days="${projectId}"]`
-      );
-      if (daysElement && data.days_left !== undefined) {
-        daysElement.textContent = `${data.days_left} days left`;
-      }
-
-      // Update status
-      const statusElement = document.querySelector(
-        `[data-project-status="${projectId}"]`
-      );
-      if (statusElement && data.status) {
-        statusElement.textContent = data.status;
-        statusElement.className = `badge status-${data.status.toLowerCase()}`;
-      }
-    })
-    .catch((error) => {
-      console.error("Error updating project stats:", error);
-    });
+  // AJAX polling disabled in simplified build. Leave project stats static or
+  // let the server render fresh values on page refresh.
+  console.warn(
+    "updateProjectStats: AJAX disabled; skipping live update for",
+    projectId
+  );
 }
 
 // Utility functions

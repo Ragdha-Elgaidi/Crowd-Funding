@@ -147,57 +147,43 @@ class EnhancedUserRegistrationForm(UserCreationForm, BaseForm):
         if email:
             email = email.lower().strip()
             if User.objects.filter(email=email).exists():
-                raise ValidationError("An account with this email already exists.")
+                self.add_error('email', "An account with this email already exists.")
         return email
     
     def clean_phone_number(self):
         """Validate Egyptian phone number format"""
         phone = self.cleaned_data.get('phone_number')
-        
         if phone:
-            # Remove spaces, dashes, and parentheses
             phone_clean = re.sub(r'[\s\-\(\)]', '', phone)
-            
-            # Egyptian mobile patterns
             patterns = [
-                r'^\+201[0125][0-9]{8}$',  # +201xxxxxxxxx (international)
-                r'^01[0125][0-9]{8}$',     # 01xxxxxxxxx (local)
-                r'^1[0125][0-9]{8}$'       # 1xxxxxxxxx (without leading zero)
+                r'^\+201[0125][0-9]{8}$',
+                r'^01[0125][0-9]{8}$',
+                r'^1[0125][0-9]{8}$'
             ]
-            
             valid = any(re.match(pattern, phone_clean) for pattern in patterns)
-            
             if not valid:
-                raise ValidationError(
-                    "Enter a valid Egyptian mobile number. "
-                    "Examples: 01012345678, +201012345678"
-                )
-            
-            # Check if phone number already exists
-            if User.objects.filter(phone_number=phone_clean).exists():
-                raise ValidationError("An account with this phone number already exists.")
-        
-        return phone_clean
+                self.add_error('phone_number', "Enter a valid Egyptian mobile number. Examples: 01012345678, +201012345678")
+            elif User.objects.filter(phone_number=phone_clean).exists():
+                self.add_error('phone_number', "An account with this phone number already exists.")
+            return phone_clean
+        return phone
     
     def clean_password2(self):
-        """Validate password confirmation"""
+        """Validate password confirmation and aggregate errors"""
         password1 = self.cleaned_data.get('password1')
         password2 = self.cleaned_data.get('password2')
-        
+        errors = []
         if password1 and password2:
             if password1 != password2:
-                raise ValidationError("The two password fields didn't match.")
-            
-            # Additional password validation
+                errors.append("The two password fields didn't match.")
             if len(password1) < 8:
-                raise ValidationError("Password must be at least 8 characters long.")
-            
+                errors.append("Password must be at least 8 characters long.")
             if password1.isdigit():
-                raise ValidationError("Password cannot be entirely numeric.")
-            
+                errors.append("Password cannot be entirely numeric.")
             if password1.lower() in ['password', '12345678', 'qwerty']:
-                raise ValidationError("Password is too common.")
-        
+                errors.append("Password is too common.")
+        if errors:
+            self.add_error('password2', errors)
         return password2
     
     def save(self, commit=True):

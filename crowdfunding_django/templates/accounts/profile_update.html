@@ -140,12 +140,7 @@
 
     <!-- Form -->
     <div class="form-container">
-      <form
-        method="post"
-        class="form ajax-form"
-        id="profile-update-form"
-        data-ajax-form="true"
-      >
+      <form method="post" class="form" id="profile-update-form">
         {% csrf_token %}
 
         <!-- Personal Information Section -->
@@ -330,66 +325,7 @@ hidden=True %} {% endblock %} {% block extra_js %}
         });
       }
 
-      // Handle form submission
-      form.addEventListener("submit", function (e) {
-        e.preventDefault();
-
-        // Show loading
-        if (loadingOverlay) {
-          showLoading({
-            text: "Updating your profile...",
-            spinner: "default",
-          });
-        }
-
-        // Get form data
-        const formData = new FormData(form);
-
-        // Make AJAX request
-        fetch(form.action || window.location.pathname, {
-          method: "POST",
-          body: formData,
-          headers: {
-            "X-Requested-With": "XMLHttpRequest",
-            "X-CSRFToken": formData.get("csrfmiddlewaretoken"),
-          },
-        })
-          .then((response) => response.json())
-          .then((data) => {
-            hideLoading();
-
-            if (data.success) {
-              // Show success message
-              showMessage(
-                data.message || "Profile updated successfully!",
-                "success"
-              );
-
-              // Redirect after delay
-              setTimeout(function () {
-                window.location.href =
-                  data.redirect_url || "{% url 'accounts:profile' %}";
-              }, 1500);
-            } else {
-              // Show error message
-              showMessage(
-                data.message || "Failed to update profile. Please try again.",
-                "error"
-              );
-
-              // Focus first error field
-              const firstErrorField = form.querySelector(".is-invalid");
-              if (firstErrorField) {
-                firstErrorField.focus();
-              }
-            }
-          })
-          .catch((error) => {
-            hideLoading();
-            console.error("Profile update error:", error);
-            showMessage("An error occurred. Please try again.", "error");
-          });
-      });
+      // Form will submit with a normal POST; server will redirect on success.
     }
 
     // Egyptian phone validation function

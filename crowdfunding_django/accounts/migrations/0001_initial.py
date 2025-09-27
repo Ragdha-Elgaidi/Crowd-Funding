@@ -27,8 +27,6 @@ class Migration(migrations.Migration):
                 ('email', models.EmailField(max_length=254, unique=True)),
                 ('first_name', models.CharField(max_length=30)),
                 ('last_name', models.CharField(max_length=30)),
-                ('phone_number', models.CharField(help_text='Egyptian mobile number (e.g., 01012345678)', max_length=15, validators=[django.core.validators.RegexValidator(message='Enter a valid Egyptian mobile number (e.g., 01012345678)', regex='^(\\+201|01|1)[0125][0-9]{8}$')])),
-                ('is_email_verified', models.BooleanField(default=False)),
                 ('date_joined', models.DateTimeField(auto_now_add=True)),
                 ('last_login', models.DateTimeField(auto_now=True)),
                 ('groups', models.ManyToManyField(blank=True, help_text='The groups this user belongs to. A user will get all permissions granted to each of their groups.', related_name='user_set', related_query_name='user', to='auth.group', verbose_name='groups')),

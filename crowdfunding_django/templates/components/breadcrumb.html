@@ -1,129 +1,135 @@
 {% load static %}
 
-<!-- Breadcrumb navigation component -->
-{% if breadcrumbs or request.resolver_match.url_name != 'home' %}
+{% if request.resolver_match.url_name != 'home' %}
 <nav class="breadcrumb-nav" aria-label="Breadcrumb">
   <div class="container">
     <ol class="breadcrumb">
-      <!-- Home link -->
       <li class="breadcrumb-item">
         <a href="{% url 'projects:home' %}" class="breadcrumb-link">
           <i class="fas fa-home" aria-hidden="true"></i>
-          <span class="sr-only">Home</span>
+          <span>Home</span>
         </a>
       </li>
 
-      <!-- Custom breadcrumbs from context -->
-      {% for crumb in breadcrumbs %}
-      <li class="breadcrumb-item {% if forloop.last %}active{% endif %}">
-        {% if crumb.url and not forloop.last %}
-        <a href="{{ crumb.url }}" class="breadcrumb-link">
-          {% if crumb.icon %}
-          <i class="{{ crumb.icon }}" aria-hidden="true"></i>
-          {% endif %} {{ crumb.title }}
-        </a>
-        {% else %} {% if crumb.icon %}
-        <i class="{{ crumb.icon }}" aria-hidden="true"></i>
-        {% endif %}
-        <span class="breadcrumb-current">{{ crumb.title }}</span>
-        {% endif %}
-      </li>
-      {% empty %}
-      <!-- Auto-generate breadcrumbs based on URL -->
-      {% if 'projects' in request.resolver_match.app_name %}
-      <li
-        class="breadcrumb-item {% if request.resolver_match.url_name == 'list' %}active{% endif %}"
-      >
-        {% if request.resolver_match.url_name != 'list' %}
-        <a href="{% url 'projects:list' %}" class="breadcrumb-link">
-          <i class="fas fa-list" aria-hidden="true"></i>
-          Projects
-        </a>
-        {% else %}
-        <i class="fas fa-list" aria-hidden="true"></i>
-        <span class="breadcrumb-current">Projects</span>
-        {% endif %}
-      </li>
-
-      {% if request.resolver_match.url_name == 'detail' and project %}
+      {% if request.resolver_match.url_name == 'project_list' or request.resolver_match.url_name == 'list' %}
       <li class="breadcrumb-item active">
-        <i class="fas fa-eye" aria-hidden="true"></i>
-        <span class="breadcrumb-current"
-          >{{ project.title|truncatechars:30 }}</span
-        >
+        <span class="breadcrumb-current">
+          <i class="fas fa-project-diagram" aria-hidden="true"></i>
+          <span>Projects</span>
+        </span>
       </li>
+
+      {% elif request.resolver_match.url_name == 'detail' and project %}
+      <li class="breadcrumb-item">
+        <a href="{% url 'projects:list' %}" class="breadcrumb-link">
+          <i class="fas fa-project-diagram" aria-hidden="true"></i>
+          <span>Projects</span>
+        </a>
+      </li>
+      <li class="breadcrumb-item active">
+        <span class="breadcrumb-current">
+          <i class="fas fa-eye" aria-hidden="true"></i>
+          <span>{{ project.title|truncatechars:30 }}</span>
+        </span>
+      </li>
+
       {% elif request.resolver_match.url_name == 'create' %}
       <li class="breadcrumb-item active">
-        <i class="fas fa-plus" aria-hidden="true"></i>
-        <span class="breadcrumb-current">Create Project</span>
-      </li>
-      {% elif request.resolver_match.url_name == 'edit' and project %}
-      <li class="breadcrumb-item">
-        <a
-          href="{% url 'projects:detail' project.id %}"
-          class="breadcrumb-link"
-        >
-          <i class="fas fa-eye" aria-hidden="true"></i>
-          {{ project.title|truncatechars:20 }}
-        </a>
-      </li>
-      <li class="breadcrumb-item active">
-        <i class="fas fa-edit" aria-hidden="true"></i>
-        <span class="breadcrumb-current">Edit</span>
-      </li>
-      {% elif request.resolver_match.url_name == 'dashboard' %}
-      <li class="breadcrumb-item active">
-        <i class="fas fa-tachometer-alt" aria-hidden="true"></i>
-        <span class="breadcrumb-current">Dashboard</span>
-      </li>
-      {% elif request.resolver_match.url_name == 'my_projects' %}
-      <li class="breadcrumb-item active">
-        <i class="fas fa-folder" aria-hidden="true"></i>
-        <span class="breadcrumb-current">My Projects</span>
-      </li>
-      {% elif request.resolver_match.url_name == 'my_contributions' %}
-      <li class="breadcrumb-item active">
-        <i class="fas fa-heart" aria-hidden="true"></i>
-        <span class="breadcrumb-current">My Contributions</span>
-      </li>
-      {% elif 'accounts' in request.resolver_match.app_name %}
-      <li
-        class="breadcrumb-item {% if request.resolver_match.url_name == 'profile' %}active{% endif %}"
-      >
-        {% if request.resolver_match.url_name != 'profile' %}
-        <a href="{% url 'accounts:profile' %}" class="breadcrumb-link">
-          <i class="fas fa-user" aria-hidden="true"></i>
-          Account
-        </a>
-        {% else %}
-        <i class="fas fa-user" aria-hidden="true"></i>
-        <span class="breadcrumb-current">Profile</span>
-        {% endif %}
+        <span class="breadcrumb-current">
+          <i class="fas fa-plus" aria-hidden="true"></i>
+          <span>Create Project</span>
+        </span>
       </li>
 
-      {% if request.resolver_match.url_name == 'login' %}
-      <li class="breadcrumb-item active">
-        <i class="fas fa-sign-in-alt" aria-hidden="true"></i>
-        <span class="breadcrumb-current">Login</span>
+      {% elif request.resolver_match.url_name == 'edit' and project %}
+      <li class="breadcrumb-item">
+        <a href="{% url 'projects:list' %}" class="breadcrumb-link">
+          <i class="fas fa-project-diagram" aria-hidden="true"></i>
+          <span>Projects</span>
+        </a>
       </li>
+      <li class="breadcrumb-item">
+        <a href="{% url 'projects:detail' project.id %}" class="breadcrumb-link">
+          <i class="fas fa-eye" aria-hidden="true"></i>
+          <span>{{ project.title|truncatechars:20 }}</span>
+        </a>
+      </li>
+      <li class="breadcrumb-item active">
+        <span class="breadcrumb-current">
+          <i class="fas fa-edit" aria-hidden="true"></i>
+          <span>Edit</span>
+        </span>
+      </li>
+
+      {% elif request.resolver_match.url_name == 'dashboard' %}
+      <li class="breadcrumb-item active">
+        <span class="breadcrumb-current">
+          <i class="fas fa-tachometer-alt" aria-hidden="true"></i>
+          <span>Dashboard</span>
+        </span>
+      </li>
+
+      {% elif request.resolver_match.url_name == 'my_projects' %}
+      <li class="breadcrumb-item active">
+        <span class="breadcrumb-current">
+          <i class="fas fa-folder" aria-hidden="true"></i>
+          <span>My Projects</span>
+        </span>
+      </li>
+
+      {% elif request.resolver_match.url_name == 'my_contributions' %}
+      <li class="breadcrumb-item active">
+        <span class="breadcrumb-current">
+          <i class="fas fa-heart" aria-hidden="true"></i>
+          <span>My Contributions</span>
+        </span>
+      </li>
+
+      {% elif request.resolver_match.url_name == 'profile' %}
+      <li class="breadcrumb-item active">
+        <span class="breadcrumb-current">
+          <i class="fas fa-user" aria-hidden="true"></i>
+          <span>Profile</span>
+        </span>
+      </li>
+
+      {% elif request.resolver_match.url_name == 'login' %}
+      <li class="breadcrumb-item active">
+        <span class="breadcrumb-current">
+          <i class="fas fa-sign-in-alt" aria-hidden="true"></i>
+          <span>Login</span>
+        </span>
+      </li>
+
       {% elif request.resolver_match.url_name == 'register' %}
       <li class="breadcrumb-item active">
-        <i class="fas fa-user-plus" aria-hidden="true"></i>
-        <span class="breadcrumb-current">Register</span>
+        <span class="breadcrumb-current">
+          <i class="fas fa-user-plus" aria-hidden="true"></i>
+          <span>Register</span>
+        </span>
       </li>
+
       {% elif request.resolver_match.url_name == 'password_reset' %}
       <li class="breadcrumb-item active">
-        <i class="fas fa-key" aria-hidden="true"></i>
-        <span class="breadcrumb-current">Reset Password</span>
+        <span class="breadcrumb-current">
+          <i class="fas fa-key" aria-hidden="true"></i>
+          <span>Reset Password</span>
+        </span>
       </li>
-      {% endif %} {% endfor %}
+
+      {% else %}
+      <li class="breadcrumb-item active">
+        <span class="breadcrumb-current">
+          {{ page_title|default:request.resolver_match.url_name|title }}
+        </span>
+      </li>
+      {% endif %}
     </ol>
   </div>
 </nav>
 {% endif %}
 
 <style>
-  /* Breadcrumb Navigation Styles */
   .breadcrumb-nav {
     background-color: var(--gray-100);
     border-bottom: 1px solid var(--gray-200);
@@ -193,20 +199,6 @@
     opacity: 0.8;
   }
 
-  /* Screen reader only text */
-  .sr-only {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-    border: 0;
-  }
-
-  /* Mobile responsive */
   @media (max-width: 768px) {
     .breadcrumb-nav {
       padding: var(--spacing-xs) 0;
@@ -226,23 +218,21 @@
       padding: var(--spacing-xs);
       gap: 4px;
     }
+  }
 
-    /* Hide breadcrumb text on very small screens, keep icons */
-    @media (max-width: 480px) {
-      .breadcrumb-link span:not(.sr-only),
-      .breadcrumb-current span {
-        display: none;
-      }
+  @media (max-width: 480px) {
+    .breadcrumb-link span:not(.sr-only),
+    .breadcrumb-current span {
+      display: none;
+    }
 
-      .breadcrumb-link,
-      .breadcrumb-current {
-        min-width: 24px;
-        justify-content: center;
-      }
+    .breadcrumb-link,
+    .breadcrumb-current {
+      min-width: 24px;
+      justify-content: center;
     }
   }
 
-  /* High contrast mode */
   @media (prefers-contrast: high) {
     .breadcrumb-nav {
       background-color: var(--white);
@@ -262,14 +252,12 @@
     }
   }
 
-  /* Reduced motion */
   @media (prefers-reduced-motion: reduce) {
     .breadcrumb-link {
       transition: none;
     }
   }
 
-  /* Print styles */
   @media print {
     .breadcrumb-nav {
       display: none;

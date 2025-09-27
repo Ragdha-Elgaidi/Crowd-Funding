@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
-from decouple import config
+# from decouple import config (removed for minimal setup)
 import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -144,7 +144,7 @@ AUTH_USER_MODEL = 'accounts.User'
 
 # Authentication URLs
 LOGIN_URL = 'accounts:login'
-LOGIN_REDIRECT_URL = 'projects:dashboard'
+LOGIN_REDIRECT_URL = 'projects:home'
 LOGOUT_REDIRECT_URL = 'projects:home'
 
 # Email Configuration (for development)

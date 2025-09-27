@@ -1,9 +1,3 @@
-"""
-Simplified views module - imports from modular views system
-
-This module provides the main views while using the enhanced modular architecture.
-"""
-
 from django.shortcuts import render, redirect
 from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
@@ -11,46 +5,45 @@ from django.contrib import messages
 from django.views.generic import CreateView
 from django.urls import reverse_lazy
 from django.contrib.auth.views import LoginView
-from .forms import CustomUserRegistrationForm, CustomAuthenticationForm, UserProfileForm
+from .forms import CustomUserRegistrationForm, CustomAuthenticationForm
 from .models import User
 
-# Import enhanced views for use
-try:
-    from .views.auth_views import (
-        EnhancedRegistrationView,
-        EnhancedLoginView,
-        ProfileView,
-        ProfileUpdateView
-    )
-    # Use enhanced views as the main views
-    CustomRegistrationView = EnhancedRegistrationView
-    CustomLoginView = EnhancedLoginView
-except ImportError:
-    # Fallback to basic views if enhanced views aren't available
-    class CustomRegistrationView(CreateView):
-        """Basic registration view"""
-        model = User
-        form_class = CustomUserRegistrationForm
-        template_name = 'accounts/register.html'
-        success_url = reverse_lazy('accounts:login')
-        
-        def form_valid(self, form):
-            response = super().form_valid(form)
-            messages.success(self.request, 'Registration successful!')
-            return response
 
-    class CustomLoginView(LoginView):
-        """Basic login view"""
-        form_class = CustomAuthenticationForm
-        template_name = 'accounts/login.html'
-        redirect_authenticated_user = True
-        
-        def get_success_url(self):
-            return reverse_lazy('projects:dashboard')
+class CustomRegistrationView(CreateView):
+    model = User
+    form_class = CustomUserRegistrationForm
+    template_name = 'accounts/register.html'
+    success_url = reverse_lazy('projects:home')
+
+    def form_valid(self, form):
+        # Save the user
+        user = form.save()
+        print('DEBUG: User saved:', user)
+        # Log the user in automatically
+        from django.contrib.auth import login, authenticate
+        password = form.cleaned_data['password1']
+        user_auth = authenticate(username=user.username, password=password)
+        print('DEBUG: Authenticated user:', user_auth)
+        if user_auth:
+            login(self.request, user_auth)
+            messages.success(self.request, 'Registration successful! Welcome to CrowdFund!')
+        else:
+            print('DEBUG: Authentication failed after registration.')
+        # Always redirect to home page after registration
+        return redirect('projects:home')
+
+
+class CustomLoginView(LoginView):
+    form_class = CustomAuthenticationForm
+    template_name = 'accounts/login.html'
+    redirect_authenticated_user = True
+
+    def get_success_url(self):
+        # Always redirect to home page after login
+        return reverse_lazy('projects:home')
 
 
 def logout_view(request):
-    """Handle user logout"""
     logout(request)
     messages.success(request, 'You have been successfully logged out.')
     return redirect('projects:home')
@@ -58,15 +51,10 @@ def logout_view(request):
 
 @login_required
 def profile_view(request):
-    """Basic profile view"""
     context = {
         'user': request.user,
-        'title': 'Profile - Crowdfunding Platform'
+        'title': 'Profile'
     }
     return render(request, 'accounts/profile.html', context)
 
 
-@login_required  
-def dashboard_view(request):
-    """User dashboard"""
-    return redirect('accounts:profile')

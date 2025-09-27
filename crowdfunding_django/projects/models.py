@@ -1,9 +1,9 @@
+
 from django.db import models
 from django.contrib.auth import get_user_model
 from django.core.validators import MinValueValidator
 from django.core.exceptions import ValidationError
 from django.utils import timezone
-from datetime import datetime
 
 User = get_user_model()
 
@@ -99,25 +99,35 @@ class Project(models.Model):
     def is_campaign_active(self):
         """Check if campaign is currently active"""
         today = timezone.now().date()
-        return (
-            self.is_active and 
-            self.start_date <= today <= self.end_date
-        )
+        return self.is_active and self.start_date <= today <= self.end_date
     
     @property
     def campaign_status(self):
         """Get campaign status"""
         today = timezone.now().date()
-        
         if not self.is_active:
             return "Inactive"
-        elif today < self.start_date:
+        if today < self.start_date:
             return "Upcoming"
-        elif today > self.end_date:
+        if today > self.end_date:
             return "Ended"
-        else:
-            return "Active"
+        return "Active"
     
+    @property
+    def current_amount(self):
+        """Alias for current_funding used in templates"""
+        return self.current_funding
+
+    @property
+    def goal_amount(self):
+        """Alias for total_target used in templates"""
+        return self.total_target
+
+    @property
+    def total_contributions(self):
+        """Return number of contributions backing the project"""
+        return self.contributions.count()
+
     def save(self, *args, **kwargs):
         """Override save to ensure validation"""
         self.full_clean()

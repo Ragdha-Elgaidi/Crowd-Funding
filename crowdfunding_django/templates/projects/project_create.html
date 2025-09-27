@@ -288,12 +288,7 @@
       </div>
       {% endif %}
 
-      <form
-        method="post"
-        class="form ajax-form"
-        id="create-project-form"
-        data-ajax-form="true"
-      >
+      <form method="post" class="form" id="create-project-form">
         {% csrf_token %}
 
         <!-- Project Information Section -->
@@ -557,68 +552,8 @@ hidden=True %} {% endblock %} {% block extra_js %}
       startDateInput.min = today;
     }
 
-    // Form submission
-    if (form) {
-      form.addEventListener("submit", function (e) {
-        e.preventDefault();
-
-        // Show loading
-        if (loadingOverlay) {
-          showLoading({
-            text: "Creating your project...",
-            spinner: "default",
-          });
-        }
-
-        // Get form data
-        const formData = new FormData(form);
-
-        // Make AJAX request
-        fetch(form.action || window.location.pathname, {
-          method: "POST",
-          body: formData,
-          headers: {
-            "X-Requested-With": "XMLHttpRequest",
-            "X-CSRFToken": formData.get("csrfmiddlewaretoken"),
-          },
-        })
-          .then((response) => response.json())
-          .then((data) => {
-            hideLoading();
-
-            if (data.success) {
-              // Show success message
-              showMessage(
-                data.message || "Project created successfully!",
-                "success"
-              );
-
-              // Redirect after delay
-              setTimeout(function () {
-                window.location.href =
-                  data.redirect_url || "{% url 'projects:list' %}";
-              }, 1500);
-            } else {
-              // Show error message
-              showMessage(
-                data.message || "Failed to create project. Please try again.",
-                "error"
-              );
-
-              // Focus first error field
-              const firstErrorField = form.querySelector(".is-invalid");
-              if (firstErrorField) {
-                firstErrorField.focus();
-              }
-            }
-          })
-          .catch((error) => {
-            hideLoading();
-            console.error("Project creation error:", error);
-            showMessage("An error occurred. Please try again.", "error");
-          });
-      });
-    }
+    // Form will submit with a normal POST; server will handle redirects and messages.
+    // Client-side helpers (counters, date validation) remain active.
   });
 
   function setupCharacterCounter(fieldName, maxLength) {

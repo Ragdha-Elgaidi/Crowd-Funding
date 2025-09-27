@@ -9,8 +9,5 @@ urlpatterns = [
     path('login/', views.CustomLoginView.as_view(), name='login'),
     path('logout/', views.logout_view, name='logout'),
     path('profile/', views.profile_view, name='profile'),
-    path('dashboard/', views.dashboard_view, name='dashboard'),
-    
-    # Additional profile management
-    # path('profile/edit/', views.profile_update_view, name='profile_update'),
+    path('dashboard/', views.profile_view, name='dashboard'),  # Consolidated with profile view
 ]
