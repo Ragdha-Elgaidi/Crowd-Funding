@@ -18,17 +18,13 @@ class CustomRegistrationView(CreateView):
     def form_valid(self, form):
         # Save the user
         user = form.save()
-        print('DEBUG: User saved:', user)
         # Log the user in automatically
         from django.contrib.auth import login, authenticate
         password = form.cleaned_data['password1']
         user_auth = authenticate(username=user.username, password=password)
-        print('DEBUG: Authenticated user:', user_auth)
         if user_auth:
             login(self.request, user_auth)
             messages.success(self.request, 'Registration successful! Welcome to CrowdFund!')
-        else:
-            print('DEBUG: Authentication failed after registration.')
         # Always redirect to dashboard after registration
         return redirect('accounts:dashboard')
 
@@ -56,5 +52,3 @@ def profile_view(request):
         'title': 'Profile'
     }
     return render(request, 'accounts/profile.html', context)
-
-

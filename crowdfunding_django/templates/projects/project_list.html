@@ -134,7 +134,8 @@
     
     <div class="container">
         <!-- Search and Filters -->
-        <div class="search-filters">
+    {% if search_enabled %}
+    <div class="search-filters">
             <div class="search-header">
                 <h2 class="search-title">Find Projects</h2>
                 <button type="button" class="filter-toggle" onclick="toggleAdvancedFilters()">
@@ -204,7 +205,8 @@
                     </select>
                 </div>
             </div>
-        </div>
+    </div>
+    {% endif %}
         
         <!-- Results Summary -->
         {% if projects %}
@@ -223,73 +225,20 @@
             </div>
         {% endif %}
         
-        <!-- Projects Grid -->
-        {% if projects %}
-            <div class="projects-grid">
-                {% for project in projects %}
-                    <div class="project-card">
-                        <!-- Project Image -->
-                        <div class="project-image">
-                            <i class="fas fa-lightbulb"></i>
-                            <span class="project-status status-{{ project.get_status_display|lower }}">
-                                {{ project.get_status_display }}
-                            </span>
-                        </div>
-                        
-                        <!-- Project Content -->
-                        <div class="project-content">
-                            <h3 class="project-title">
-                                <a href="{% url 'projects:detail' project.pk %}">
-                                    {{ project.title }}
-                                </a>
-                            </h3>
-                            
-                            <p class="project-description">
-                                {{ project.details|truncatewords:20 }}
-                            </p>
-                            
-                            <div class="project-meta">
-                                <div class="meta-item">
-                                    <span class="meta-label">Target:</span>
-                                    <span class="meta-value">${{ project.total_target|floatformat:0 }}</span>
-                                </div>
-                                <div class="meta-item">
-                                    <span class="meta-label">Raised:</span>
-                                    <span class="meta-value">${{ project.current_amount|floatformat:0 }}</span>
-                                </div>
-                                <div class="meta-item">
-                                    <span class="meta-label">End Date:</span>
-                                    <span class="meta-value">{{ project.end_date|date:"M d, Y" }}</span>
-                                </div>
-                            </div>
-                            
-                            <!-- Progress Bar -->
-                            <div class="progress-bar">
-                                <div class="progress-fill" 
-                                     style="width: {{ project.funding_percentage|floatformat:0 }}%"></div>
-                            </div>
-                            
-                            <!-- Project Actions -->
-                            <div class="project-actions">
-                                <a href="{% url 'projects:detail' project.pk %}" class="btn-view">
-                                    <i class="fas fa-eye"></i> View
-                                </a>
-                                {% if project.is_active and project != request.user %}
-                                    <a href="{% url 'projects:contribute' project.pk %}" class="btn-contribute">
-                                        <i class="fas fa-heart"></i> Support
-                                    </a>
-                                {% endif %}
-                            </div>
-                        </div>
-                    </div>
-                {% endfor %}
-            </div>
-            
-            <!-- Pagination -->
-            {% if is_paginated %}
-                {% include 'components/pagination.html' %}
-            {% endif %}
-        {% else %}
+        <!-- Projects Grid -->
+        {% if projects %}
+            <div class="projects-grid">
+                {% for project in projects %}
+                    {% include 'components/project_card.html' with project=project %}
+                {% endfor %}
+            </div>
+
+            <!-- Pagination -->
+            {% if is_paginated %}
+                {% include 'components/pagination.html' %}
+            {% endif %}
+        {% else %}
+            <!-- Empty State -->
             <!-- Empty State -->
             <div class="empty-state">
                 <i class="fas fa-search"></i>

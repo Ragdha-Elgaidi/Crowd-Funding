@@ -5,8 +5,8 @@ from django.contrib import messages
 from django.views.generic import CreateView
 from django.urls import reverse_lazy
 from django.contrib.auth.views import LoginView
-from .forms import CustomUserRegistrationForm, CustomAuthenticationForm
-from .models import User
+from ..forms import CustomUserRegistrationForm, CustomAuthenticationForm
+from ..models import User
 
 
 class CustomRegistrationView(CreateView):
@@ -56,5 +56,3 @@ def profile_view(request):
         'title': 'Profile'
     }
     return render(request, 'accounts/profile.html', context)
-
-

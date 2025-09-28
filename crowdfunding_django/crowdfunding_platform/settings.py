@@ -25,6 +25,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-3az&@cv*%mb@bk3k^wk#^06a)b2#wowj0k80ypi^sh3-&c-ud_'
 
 # SECURITY WARNING: don't run with debug turned on in production!
+# Enable DEBUG for local development. Change to False for production.
 DEBUG = True
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1']
@@ -67,7 +68,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-            ],
+             ],
         },
     },
 ]
@@ -144,8 +145,8 @@ AUTH_USER_MODEL = 'accounts.User'
 
 # Authentication URLs
 LOGIN_URL = 'accounts:login'
-LOGIN_REDIRECT_URL = 'projects:home'
-LOGOUT_REDIRECT_URL = 'projects:home'
+LOGIN_REDIRECT_URL = 'accounts:dashboard'
+LOGOUT_REDIRECT_URL = 'accounts:dashboard'
 
 # Email Configuration (for development)
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'

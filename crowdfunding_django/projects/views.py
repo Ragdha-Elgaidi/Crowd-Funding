@@ -31,16 +31,26 @@ def project_list_view(request):
     paginator = Paginator(projects, 12)
     page = request.GET.get('page')
     page_obj = paginator.get_page(page)
-    return render(request, 'projects/project_list.html', {'projects': page_obj})
+    return render(request, 'projects/project_list.html', {
+        'projects': page_obj,
+        'is_paginated': page_obj.paginator.num_pages > 1,
+        'search_enabled': False  # Set to True when backend logic is implemented
+    })
 
 
 def project_detail_view(request, pk):
     project = get_object_or_404(Project, pk=pk)
     recent_contributions = project.contributions.select_related('contributor').order_by('-contributed_at')[:5]
+    try:
+        percentage = float(project.funding_percentage)
+    except (TypeError, ValueError):
+        percentage = 0.0
+    progress_percent = max(0, min(100, round(percentage, 2)))
+
     return render(request, 'projects/project_detail.html', {
         'project': project,
         'contributions': recent_contributions,
-        'contribution_form': ContributionForm(),
+        'progress_percent': progress_percent,
     })
 
 
@@ -84,8 +94,8 @@ def project_delete_view(request, pk):
 
 
 @login_required
-def contribute_to_project(request, project_id):
-    project = get_object_or_404(Project, pk=project_id, is_active=True)
+def contribute_to_project(request, pk):
+    project = get_object_or_404(Project, pk=pk, is_active=True)
     if request.method == 'POST':
         form = ContributionForm(request.POST)
         if form.is_valid():

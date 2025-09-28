@@ -398,6 +398,449 @@ body {
   grid-template-columns: 1fr;
 }
 
+/* Project card styles moved from templates/components/project_card.html */
+.project-card {
+  position: relative;
+  background: var(--white);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.project-card__image {
+  position: relative;
+  height: 200px;
+  background: var(--gray-100);
+}
+
+.project-card__image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.project-card__placeholder {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3rem;
+  color: var(--gray-400);
+}
+
+.project-card__status {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  background: rgba(0, 0, 0, 0.65);
+  color: var(--white);
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.project-card__body {
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem;
+  gap: 1.25rem;
+  flex: 1;
+}
+
+.project-card__title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.project-card__description {
+  color: var(--gray-600);
+  margin: 0;
+}
+
+.project-card__meta {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.project-card__meta .label {
+  display: block;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--gray-500);
+}
+
+.project-card__meta .value {
+  font-weight: 600;
+  color: var(--gray-900);
+}
+
+.project-card__progress .progress {
+  height: 8px;
+  background: var(--gray-200);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.project-card__progress .progress-fill {
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    var(--primary-color),
+    var(--secondary-color)
+  );
+}
+
+.project-card__progress .progress-value {
+  display: block;
+  margin-top: 0.5rem;
+  font-size: 0.85rem;
+  color: var(--gray-600);
+}
+
+.project-card__footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-top: auto;
+}
+
+.project-card__footer .owner {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.project-card__footer .owner-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--primary-color);
+  color: var(--white);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+}
+
+.project-card__footer .btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.5rem 0.85rem;
+  border-radius: var(--border-radius);
+  border: 1px solid transparent;
+  text-decoration: none;
+  font-weight: 500;
+  transition: var(--transition);
+}
+
+.project-card__footer .btn-view {
+  border-color: var(--gray-300);
+  color: var(--gray-700);
+}
+
+.project-card__footer .btn-view:hover {
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+}
+
+.project-card__footer .btn-support {
+  background: var(--primary-color);
+  color: var(--white);
+}
+
+.project-card__footer .btn-support:hover {
+  background: var(--secondary-color);
+}
+
+/* Project detail styles moved from templates/projects/project_detail.html */
+.project-hero {
+  background: linear-gradient(
+    135deg,
+    var(--primary-color),
+    var(--secondary-color)
+  );
+  color: var(--white);
+  padding: 3rem 0;
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.project-status-badge {
+  display: inline-block;
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  background: rgba(255, 255, 255, 0.15);
+  margin-bottom: 1rem;
+}
+
+.project-detail-container {
+  max-width: 1100px;
+  margin: 0 auto 4rem;
+  display: grid;
+  gap: 2.5rem;
+  grid-template-columns: 2fr 1fr;
+}
+
+.project-main,
+.project-sidebar {
+  background: var(--white);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-sm);
+  padding: 2rem;
+}
+
+.project-description {
+  color: var(--gray-700);
+  line-height: 1.6;
+}
+
+.project-meta-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 1.25rem;
+  margin-top: 2rem;
+}
+
+.meta-card {
+  background: var(--gray-50);
+  border-radius: var(--border-radius);
+  padding: 1rem 1.25rem;
+  text-align: center;
+}
+
+.meta-label {
+  display: block;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--gray-500);
+  margin-bottom: 0.25rem;
+}
+
+.meta-value {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--gray-900);
+}
+
+.funding-summary {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.funding-amount {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--primary-color);
+  margin: 0;
+}
+
+.funding-target {
+  font-size: 0.95rem;
+  color: var(--gray-600);
+  margin-top: 0.25rem;
+}
+
+.progress-bar {
+  height: 12px;
+  border-radius: 6px;
+  background: var(--gray-200);
+  overflow: hidden;
+  margin: 1.5rem 0;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    var(--primary-color),
+    var(--secondary-color)
+  );
+  transition: width 0.3s ease;
+}
+
+.owner-summary {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: var(--gray-50);
+  border-radius: var(--border-radius);
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.owner-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--primary-color);
+  color: var(--white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 1.25rem;
+}
+
+.contribute-form {
+  display: grid;
+  gap: 1rem;
+}
+
+.amount-input {
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--gray-300);
+  border-radius: var(--border-radius);
+  font-size: 1rem;
+  text-align: center;
+  font-weight: 600;
+}
+
+.quick-amounts {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+}
+
+.quick-amount {
+  border: 1px solid var(--gray-300);
+  border-radius: var(--border-radius);
+  padding: 0.6rem;
+  cursor: pointer;
+  background: var(--gray-50);
+  transition: var(--transition);
+}
+
+.quick-amount:hover {
+  background: var(--primary-color);
+  color: var(--white);
+  border-color: var(--primary-color);
+}
+
+.btn-contribute {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  border: none;
+  border-radius: var(--border-radius);
+  padding: 0.85rem 1.25rem;
+  font-weight: 600;
+  background: var(--primary-color);
+  color: var(--white);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.btn-contribute:disabled {
+  background: var(--gray-400);
+  cursor: not-allowed;
+}
+
+.project-actions {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+}
+
+.btn-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  border-radius: var(--border-radius);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.btn-edit {
+  background: var(--warning-color);
+  color: var(--white);
+}
+.btn-delete {
+  background: var(--danger-color);
+  color: var(--white);
+}
+
+.contributions-section {
+  background: var(--white);
+  border: 1px solid var(--gray-200);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-sm);
+  margin-top: 3rem;
+}
+
+.contributions-list {
+  padding: 1.5rem;
+  display: grid;
+  gap: 1rem;
+}
+
+.contribution-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  border-radius: var(--border-radius);
+  border: 1px solid var(--gray-200);
+}
+
+.contributor-info {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.contributor-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--primary-color);
+  color: var(--white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+}
+
+.contribution-amount {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--primary-color);
+}
+
+@media (max-width: 992px) {
+  .project-detail-container {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 600px) {
+  .quick-amounts {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .contribution-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+}
+
 .grid-cols-2 {
   grid-template-columns: repeat(2, 1fr);
 }

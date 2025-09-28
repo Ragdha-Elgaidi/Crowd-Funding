@@ -1,0 +1,14 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Run Django Project",
+			"type": "shell",
+			"command": "crowdfunding_env\\Scripts\\python.exe manage.py runserver",
+			"args": [],
+			"isBackground": true,
+			"problemMatcher": [],
+			"group": "build"
+		}
+	]
+}

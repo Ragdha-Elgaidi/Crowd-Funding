@@ -33,7 +33,7 @@ class EnhancedRegistrationView(CreateView):
     model = User
     form_class = EnhancedUserRegistrationForm
     template_name = 'accounts/register.html'
-    success_url = reverse_lazy('projects:home')
+    success_url = reverse_lazy('accounts:dashboard')
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -102,7 +102,7 @@ class EnhancedRegistrationView(CreateView):
         """Redirect authenticated users"""
         if request.user.is_authenticated:
             messages.info(request, 'You are already logged in.')
-            return redirect('projects:dashboard')
+            return redirect('projects:home')
         return super().dispatch(request, *args, **kwargs)
 
 
@@ -113,7 +113,7 @@ class EnhancedLoginView(LoginView):
     """
     form_class = EnhancedAuthenticationForm
     template_name = 'accounts/login.html'
-    success_url = reverse_lazy('projects:dashboard')
+    success_url = reverse_lazy('accounts:dashboard')
     redirect_authenticated_user = True
     
     def get_context_data(self, **kwargs):
